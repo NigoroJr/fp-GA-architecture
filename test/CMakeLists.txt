@@ -1,0 +1,25 @@
+add_definitions(-DBOOST_TEST_DYN_LINK)
+
+find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+
+macro (add_unittest NAME MAIN_SRC)
+    add_executable (${NAME} ${MAIN_SRC} ${ARGN})
+    target_link_libraries (${NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+    add_test (${NAME} ${NAME})
+endmacro (add_unittest)
+
+include_directories(${fp-GA-architecture_SOURCE_DIR}/src)
+file(GLOB SOURCES "${fp-GA-architecture_SOURCE_DIR}/src/*.h")
+foreach(SRC ${SOURCES})
+    if(NOT ${SRC} MATCHES main.cpp)
+        get_filename_component(LIB_NAME ${SRC} NAME_WE)
+        list(APPEND LIBS ${LIB_NAME})
+    endif()
+endforeach(SRC)
+
+file(GLOB TESTS "*_test.cpp")
+foreach(TEST ${TESTS})
+    get_filename_component(TEST_NAME ${TEST} NAME_WE)
+    add_unittest(${TEST_NAME} ${TEST})
+    target_link_libraries(${TEST_NAME} ${LIBS})
+endforeach(TEST)
