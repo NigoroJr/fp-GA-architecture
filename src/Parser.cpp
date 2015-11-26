@@ -9,50 +9,51 @@
 #define LOGIC_AREA "Total used logic block area:"
 #define ROUTE_AREA "Total routing area:"
 #define SCIENTIFIC_NOTATION "[-]?[0-9]+\\.[0-9]+([e][-+][0-9]+)"
+#define NUM_METRICS 3
 
 /* Method that parses the output of vpr in the form of a string.
  * res: stream of vpr results.
- * output: a pair, with first representing critical path in ns and second
- *         representing area in minimum transistor units
+ * output: a pair, with first representing area in minimum transistor units
+ *         and second representing critical path in ns. Return -1, -1 if all
+ *         metrics are not found.
  */
-std::pair<double, double> parse_results(FILE* res) {
-    double metrics[3];
-    int num_found = 0;
+auto parse_results(FILE* res) {
+    double metrics[NUM_METRICS];
+    std::regex reg[NUM_METRICS] = {std::regex(LOGIC_AREA),
+        std::regex(ROUTE_AREA), std::regex(CRIT_PATH)};
     std::stringstream ss;
     std::string temp;
     char line[256];
-    std::regex reg(LOGIC_AREA);
-    while (num_found != 3) {
+    // Search stream until all metrics are found
+    for (size_t i = 0; i < NUM_METRICS;) {
+        // If you get to end of stream, output failure
         if (!fgets(line, 256, res)) {
             return std::pair<double, double>(-1, -1);
         }
-        if (std::regex_search(line, reg)) {
+        // If the stat we are looking for is found, parse the line
+        if (std::regex_search(line, reg[i])) {
             ss << line;
             while (ss >> temp) {
+                // If the number is represented in scientific notation,
+                // parse it to output a double
                 if (std::regex_match(temp, std::regex(SCIENTIFIC_NOTATION))) {
-                    num = atof(temp.substr(0, temp.find('e') + 1).c_str());
+                    metrics[i] = atof(temp.substr(0, temp.find('e') + 1).c_str());
                     int exp = atoi(temp.substr(temp.find('e') + 1).c_str());
                     while (exp != 0) {
-                        num *= 10;
+                        metrics[i] *= 10;
                         exp--;
                     }
                     break;
                 } else if (temp[0] >= '0' && temp[0] <= '9') {
-                    num = atof(temp.c_str());
+                    metrics[i] = atof(temp.c_str());
                     break;
                 }
             }
-            metrics[num_found] = num;
-            if (num_found == 0) {
-                reg = ROUTE_AREA;
-            } else if (num_found == 1) {
-                reg = CRIT_PATH;
-            }
-            num_found++;
             ss.str(std::string());
+            i++;
         }
     }
-    return std::pair<double, double>(metrics[2], metrics[0] + metrics[1]);
+    return std::pair<double, double>(metrics[0] + metrics[1], metrics[2]);
 }
 
 int main() {
