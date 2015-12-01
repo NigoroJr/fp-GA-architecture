@@ -6,7 +6,7 @@
 #include <regex>
 #include <utility>
 #include <vector>
-#include <queue>
+#include <unordered_map>
 #include "Architecture.h"
 
 #define CRIT_PATH "Final critical path:"
@@ -63,41 +63,29 @@ auto parse_results(FILE* res) {
 
 void make_arch_file(const Architecture& arch, const std::string& out_file) {
     std::string line, temp = "2.690e-10";
-    std::queue<std::string> to_replace(std::deque<std::string>({TEMP_K, "TEMP_DELAY"}));
-    std::queue<std::string> replace_with(
-            std::deque<std::string>({
-                std::string("num_pins=\"") + std::to_string(arch.K) + "\""
-                }));
     for (size_t i = 0; i < arch.K - 1; i++) {
         temp += "\n2.690e-10";
     }
-    replace_with.push(temp);
+    std::unordered_map<std::string, std::string> temp_args = {
+        {TEMP_K, "num_pins=\"" + std::to_string(arch.K) + "\""},
+        {"TEMP_DELAY", temp}};
     std::ifstream is("../arch_template.xml");
     std::ofstream os(out_file);
     std::stringstream ss;
     while (std::getline(is, line)) {
-        if (to_replace.size() > 0) {
-            ss << line;
-            while (ss >> temp) {
-                if (to_replace.size() && temp == to_replace.front()) {
-                    os << replace_with.front();
-                    replace_with.pop();
-                    to_replace.pop();
-                } else {
-                    os << temp;
-                }
-                os << " ";
+        ss << line;
+        while (ss >> temp) {
+            auto it = temp_args.find(temp);
+            if (it != temp_args.end()) {
+                os << it->second;
+            } else {
+                os << temp;
             }
-            os << std::endl;
-            ss.str(std::string());
-            ss.clear();
-        } else {
-            os << line << std::endl;
+            os << " ";
         }
-    }
-    if (to_replace.size() != 0) {
-        std::cout << "Couldn't find all the template variables." << std::endl;
-        exit(-1);
+        os << std::endl;
+        ss.str(std::string());
+        ss.clear();
     }
     os.close();
 }
