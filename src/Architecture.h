@@ -5,7 +5,7 @@
 
 class Architecture {
 public:
-    static const unsigned UNSET;
+    static const unsigned UNSET = 0;
 
     /* Constructors, Destructor, and Assignment operators {{{ */
     // Default constructor
@@ -43,6 +43,6 @@ public:
 private:
 };
 
-const unsigned Architecture::UNSET = 0;
+// const unsigned Architecture::UNSET = 0;
 
 #endif /* end of include guard */
