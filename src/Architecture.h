@@ -60,12 +60,15 @@ public:
     // TODO: switch block type?
 
 private:
-    void make_arch_file(std::string& filename);
+    void make_arch_file();
+    std::string arch_file;
+
     class Results {
         public:
             Results();
             ~Results();
-            void run_benchmark();
+            void run_benchmark(unsigned K, unsigned I, unsigned W,
+                    const std::string& arch_file);
 
             /* Method that parses the output of vpr in the form of a string.
              * res: stream of vpr results.
@@ -79,7 +82,6 @@ private:
             double crit_path;
             double area;
             std::string benchmark;
-            std::string arch_file;
     };
 
     // const unsigned Architecture::UNSET = 0;

@@ -43,7 +43,7 @@ Architecture& Architecture::operator=(Architecture&& other) {
 }
 /* }}} */
 
-void Architecture::make_arch_file(std::string& filename) {
+void Architecture::make_arch_file() {
     std::string line, temp = "2.690e-10";
     for (size_t i = 0; i < K - 1; i++) {
         temp += "\n2.690e-10";
@@ -52,7 +52,7 @@ void Architecture::make_arch_file(std::string& filename) {
         {TEMP_K, "num_pins=\"" + std::to_string(K) + "\""},
         {"TEMP_DELAY", temp}};
     std::ifstream is("../arch_template.xml");
-    std::ofstream os(filename);
+    std::ofstream os(arch_files);
     std::stringstream ss;
     while (std::getline(is, line)) {
         ss << line;
@@ -75,15 +75,16 @@ void Architecture::make_arch_file(std::string& filename) {
 Architecture::Results::Results()
     : crit_path{UNSET}
     , area{UNSET}
-    , filename{""}
+    , benchmark{""}
 { }
 
 Architecture::Results::~Results()
 { }
 
-void Architecture::run_benchmark(unsigned K, unsigned I, unsigned W) {
-    std::string command = std::string(VPR_PATH) + " " + arch_file + benchmark
-        + "-route_chan_width " + W;
+void Architecture::run_benchmark(unsigned K, unsigned I, unsigned W,
+        const std::string& arch_file) {
+    std::string command = std::string(VPR_PATH) + " " + arch_file + " "
+        + benchmark + " -route_chan_width " + W;
     FILE* res;
     double temp_area, temp_crit;
     for (unsigned i = 0; i < BENCH_ITER; i++) {
