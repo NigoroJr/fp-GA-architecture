@@ -20,6 +20,7 @@
 #define SCIENTIFIC_NOTATION "[-]?[0-9]+\\.[0-9]+([e][-+][0-9]+)"
 #define NUM_METRICS 3
 #define TEMP_K "num_pins=TEMP_K"
+#define TEMP_I "num_pb=TEMP_I"
 #define BENCH_ITER 10
 
 class Architecture {
@@ -57,18 +58,47 @@ public:
     /* Channel Width */
     unsigned W;
 
+    /* All benchmarks to test with */
+    std::vector<Benchmark> bench;
+
+    /* Constructs the architecture file */
+    void make_arch_file();
+
+    /* Run each benchmark and store it in the benchmark object */
+    void run_benchmarks();
+
     // TODO: switch block type?
 
-private:
-    void make_arch_file();
+    /* The architecture file that represents the architecture */
     std::string arch_file;
 
-    class Results {
+private:
+
+    class Benchmark {
         public:
-            Results();
-            ~Results();
-            void run_benchmark(unsigned K, unsigned I, unsigned W,
-                    const std::string& arch_file);
+            /* Constructors, Destructor, and Assignment operators {{{ */
+
+            // Default constructor
+            Benchmark();
+
+            // Copy constructor
+            Benchmark(const Benchmark& other);
+
+            // Move constructor
+            Benchmark(Benchmark&& other);
+
+            // Filename constructor
+            Benchmark(const std::string& filename);
+
+            // Destructor
+            ~Benchmark();
+
+            // Assignment operator
+            Benchmark& operator=(const Benchmark& other);
+
+            // Move Assignment operator
+            Benchmark& operator=(const Benchmark&& other);
+            /* }}} */
 
             /* Method that parses the output of vpr in the form of a string.
              * res: stream of vpr results.
@@ -77,6 +107,9 @@ private:
              *         metrics are not found.
              */
             std::pair<double, double> parse_results(FILE* res);
+            inline double get_crit_path() {return crit_path;}
+            inline double get_area() {return area;}
+            inline double get_filename() {return benchmark;}
 
         private:
             double crit_path;

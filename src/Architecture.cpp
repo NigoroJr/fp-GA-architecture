@@ -44,20 +44,35 @@ Architecture& Architecture::operator=(Architecture&& other) {
 /* }}} */
 
 void Architecture::make_arch_file() {
+    // Construct delay matrix based on K
     std::string line, temp = "2.690e-10";
     for (size_t i = 0; i < K - 1; i++) {
         temp += "\n2.690e-10";
     }
+
+    // The unordered map that defined the parts of the template to replace and
+    // with what
     std::unordered_map<std::string, std::string> temp_args = {
         {TEMP_K, "num_pins=\"" + std::to_string(K) + "\""},
-        {"TEMP_DELAY", temp}};
+        {"TEMP_DELAY", temp}
+        {TEMP_I, "num_pb=\"" + I + "\""}};
+
+    // Open the files we need to read and write
     std::ifstream is("../arch_template.xml");
     std::ofstream os(arch_files);
     std::stringstream ss;
+
+    // Read to the end of the template
     while (std::getline(is, line)) {
         ss << line;
+
+        // Read each word of the line
         while (ss >> temp) {
+            // Check to see if the word need to be replaced
             auto it = temp_args.find(temp);
+            
+            // Replace it in the output document if necessary. Otherwise just
+            // print the original world from the template.
             if (it != temp_args.end()) {
                 os << it->second;
             } else {
@@ -72,34 +87,87 @@ void Architecture::make_arch_file() {
     os.close();
 }
 
-Architecture::Results::Results()
+void Architecture::run_benchmarks() {
+    std::string command;
+    FILE* res;
+    double temp_area, temp_crit;
+
+    // Run each benchmark
+    for (Benchmark b : bench) {
+
+        // The command to give to popen
+        command = std::string(VPR_PATH) + " " + arch_file + " "
+            + b.get_filename() + " -route_chan_width " + W;
+
+        // Run the benchmark multiple times
+        for (unsigned i = 0; i < BENCH_ITER; i++) {
+            
+            // Run vpr
+            res = popen(command.c_str());
+
+            // Save the results of the benchmark
+            if (crit_path == UNSET) {
+                std::tie(area, crit_path) = b.parse_results(res);
+            } else {
+                std::tie(temp_area, temp_crit) = b.parse_results(res);
+                area = std::min(area, temp_area);
+                crit_path = std::max(crit_path, temp_crit);
+            }
+        }
+    }
+}
+
+/* Constructors, Destructor, and Assignment operators {{{ */
+
+// Default constructor
+Architecture::Benchmark::Benchmark()
     : crit_path{UNSET}
     , area{UNSET}
     , benchmark{""}
 { }
 
-Architecture::Results::~Results()
+// Copy constructor
+Architecture::Benchmark::Benchmark(const Benchmark& other) 
+    : crit_path(other.crit_path)
+    , area(other.area)
+    , benchmark(other.benchmark)
 { }
 
-void Architecture::run_benchmark(unsigned K, unsigned I, unsigned W,
-        const std::string& arch_file) {
-    std::string command = std::string(VPR_PATH) + " " + arch_file + " "
-        + benchmark + " -route_chan_width " + W;
-    FILE* res;
-    double temp_area, temp_crit;
-    for (unsigned i = 0; i < BENCH_ITER; i++) {
-        res = popen(command.c_str());
-        if (crit_path == UNSET) {
-            std::tie(area, crit_path) = parse_results(res);
-        } else {
-            std::tie(temp_area, temp_crit) = parse_results(res);
-            area = std::min(area, temp_area);
-            crit_path = std::max(crit_path, temp_crit);
-        }
-    }
-}
+// Move constructor
+Architecture::Benchmark::Benchmark(Benchmark&& other)
+    : crit_path(std::move(other.crit_path))
+    , area(std::move(other.area))
+    , benchmark(std::move(other.benchmark))
+{ }
 
-Architecture::Results::std::pair<double, double> parse_results(FILE* res) {
+// Filename constructor
+Architecture::Benchmark::Benchmark(const std::string& filename)
+    : crit_path{UNSET}
+    , area{UNSET}
+    , benchmark{filename}
+{ }
+
+// Destructor
+Architecture::Benchmark::~Benchmark()
+{ }
+
+// Assignment operator
+Architecture& Architecture::Benchmark::operator=(const Benchmark& other)
+    : crit_path(other.crit_path)
+    , area(other.area)
+    , benchmark(other.benchmark)
+{ }
+
+// Move assignment operator
+Architecture& Architecture::Benchmark::operator=(Benchmark&& other)
+    : crit_path(std::move(other.crit_path))
+    , area(std::move(other.area))
+    , benchmark(std::move(other.benchmark))
+{ } 
+
+/* }}} */
+
+Architecture::Benchmark::std::pair<double, double> parse_results(FILE* res) {
     double metrics[NUM_METRICS];
     std::regex reg[NUM_METRICS] = {std::regex(LOGIC_AREA),
         std::regex(ROUTE_AREA), std::regex(CRIT_PATH)};
