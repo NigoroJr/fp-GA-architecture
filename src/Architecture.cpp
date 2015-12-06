@@ -81,6 +81,8 @@ Architecture::Architecture()
     : K{UNSET}
     , I{UNSET}
     , W{UNSET}
+    , bench{}
+    , arch_file{}
 { }
 
 // Copy constructor
@@ -88,6 +90,8 @@ Architecture::Architecture(const Architecture& other)
     : K{other.K}
     , I{other.I}
     , W{other.W}
+    , bench{other.bench}
+    , arch_file{other.arch_file}
 { }
 
 // Move constructor
@@ -95,6 +99,8 @@ Architecture::Architecture(Architecture&& other)
     : K{std::move(other.K)}
     , I{std::move(other.I)}
     , W{std::move(other.W)}
+    , bench{std::move(other.bench)}
+    , arch_file{std::move(other.arch_file)}
 { }
 
 // Destructor
@@ -106,6 +112,8 @@ Architecture& Architecture::operator=(const Architecture& other) {
     K = other.K;
     I = other.I;
     W = other.W;
+    bench = other.bench;
+    arch_file = other.arch_file;
     return *this;
 }
 
@@ -114,6 +122,8 @@ Architecture& Architecture::operator=(Architecture&& other) {
     K = std::move(other.K);
     I = std::move(other.I);
     W = std::move(other.W);
+    bench = std::move(other.bench);
+    arch_file = std::move(other.arch_file);
     return *this;
 }
 /* }}} */
