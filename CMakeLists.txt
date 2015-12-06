@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_subdirectory(src)
 
-if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     enable_testing()
     add_subdirectory(test)
 endif()
