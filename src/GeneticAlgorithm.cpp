@@ -176,7 +176,11 @@ const Params& GeneticAlgorithm::parameters() const {
 }
 
 void GeneticAlgorithm::evaluate() {
-    // TODO: Call VPR (multithread)
+#pragma omp parallel for
+    for (unsigned i = 0; i < architectures.size(); i++) {
+        // Populate the Architecture::Benchmark for each architecture
+        architectures[i].run_benchmarks();
+    }
 }
 
 void GeneticAlgorithm::select() {
