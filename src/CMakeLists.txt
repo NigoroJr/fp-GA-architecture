@@ -1,10 +1,18 @@
 file(GLOB SOURCES "*.cpp")
 
+# Get library names
+foreach(SRC ${SOURCES})
+    if(NOT ${SRC} MATCHES main.cpp)
+        get_filename_component(LIB_NAME ${SRC} NAME_WE)
+        list(APPEND LIBS ${SRC})
+    endif()
+endforeach(SRC)
+
 # Create libraries
 foreach(SRC ${SOURCES})
     if(NOT ${SRC} MATCHES main.cpp)
         get_filename_component(LIB_NAME ${SRC} NAME_WE)
-        add_library(${LIB_NAME} SHARED ${SRC})
+        add_library(${LIB_NAME} SHARED ${LIBS})
     endif()
 endforeach(SRC)
 
