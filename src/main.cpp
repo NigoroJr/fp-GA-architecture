@@ -1,4 +1,7 @@
+#include "Architecture.h"
 #include "GeneticAlgorithm.h"
+
+#include "cxxopts.hpp"
 
 #include <iostream>
 #include <csignal>
@@ -10,16 +13,62 @@ void signal_handler(int sig) {
     keep_going = false;
 }
 
-int main(int argc, char const* argv[]) {
+int main(int argc, char* argv[]) {
+    // Set default values
+    unsigned interval = 50;
+    unsigned num_population = 10;
+    unsigned elites_preserve = 2;
+    float mutation_occurrence_rate = 0.05;
+    float mutation_amount = 0.05;
+    float crossover_occurrence_rate = 0.05;
+    bool show_help = false;
+
+    cxxopts::Options options{argv[0], " <benchmark1> [benchmark2, benchmark3, ...]"};
+    options.add_options()
+        ("p,population-size", "The number of population",
+         cxxopts::value(num_population))
+        ("i,interval", "Interval to print the intermediate results",
+         cxxopts::value(interval))
+        ("e,elites", "Number of elites to preserve",
+         cxxopts::value(elites_preserve))
+        ("o,mutation-occurrence", "The probability of mutations to occur",
+         cxxopts::value(mutation_occurrence_rate))
+        ("a,mutation-ammount", "The variation in percentage of the mutation",
+         cxxopts::value(mutation_amount))
+        ("c,crossover-occurrence", "The probability of crossover to occur",
+         cxxopts::value(crossover_occurrence_rate))
+        ("h,help", "Show this help",
+         cxxopts::value(show_help));
+    options.parse(argc, argv);
+
+    if (show_help) {
+        std::cout << options.help() << std::endl;
+        return 0;
+    }
+
+    if (argc < 2) {
+        std::cerr << "Need at least one benchmark" << std::endl;
+        std::cerr << options.help() << std::endl;
+        return 1;
+    }
+
+    // Add benchmarks
+    std::vector<Architecture::Benchmark> benchmarks;
+    for (int i = 1; i < argc; i++) {
+        benchmarks.emplace_back(argv[i]);
+    }
+
     GeneticAlgorithm::Params params{
-        10, 2, 0.05, 0.05, 0.05
+        num_population,
+        elites_preserve,
+        mutation_occurrence_rate,
+        mutation_amount,
+        crossover_occurrence_rate
     };
-    GeneticAlgorithm ga{params};
+    GeneticAlgorithm ga{params, benchmarks};
 
     std::signal(SIGINT, signal_handler);
     unsigned cnt = 0;
-    // TODO: command line
-    const unsigned interval = 50;
     while (keep_going) {
         ga.run_generation();
 

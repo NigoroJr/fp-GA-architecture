@@ -72,12 +72,16 @@ GeneticAlgorithm::GeneticAlgorithm()
     : GeneticAlgorithm(Params{10, 1, 0.05, 0.05, 0.01})
 { }
 
-GeneticAlgorithm::GeneticAlgorithm(const Params& params)
+GeneticAlgorithm::GeneticAlgorithm(const Params& params,
+        const std::vector<Architecture::Benchmark>& benchmarks)
     : params{params}
     , architectures{params.num_population}
     , next_generation{}
 {
     fill_random_population(architectures.begin(), architectures.end());
+    for (Architecture& arch : architectures) {
+        arch.bench = benchmarks;
+    }
 
     // Make weights for roulette selection
     weights.resize(architectures.size() - params.elites_preserve - 1);

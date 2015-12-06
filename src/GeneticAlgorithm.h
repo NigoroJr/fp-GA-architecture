@@ -64,7 +64,8 @@ public:
      * Creates a genetic algorithm runner with the given parameters.
      * The number of population must be greater than 1.
      */
-    GeneticAlgorithm(const Params& params);
+    GeneticAlgorithm(const Params& params,
+        const std::vector<Architecture::Benchmark>& benchmarks = {});
 
     // Copy constructor
     GeneticAlgorithm(const GeneticAlgorithm& other);
