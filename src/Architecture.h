@@ -15,7 +15,6 @@
 #include <utility>
 #include <vector>
 
-#define VPR_PATH
 #define CRIT_PATH "Final critical path:"
 #define LOGIC_AREA "Total used logic block area:"
 #define ROUTE_AREA "Total routing area:"
@@ -120,7 +119,7 @@ public:
     void make_arch_file();
 
     /* Run each benchmark and store it in the benchmark object */
-    void run_benchmarks();
+    void run_benchmarks(const std::string& vpr_path);
 
     /**
      * Changes the property of this architecture.

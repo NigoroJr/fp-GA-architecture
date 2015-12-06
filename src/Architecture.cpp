@@ -203,7 +203,7 @@ void Architecture::make_arch_file() {
     os.close();
 }
 
-void Architecture::run_benchmarks() {
+void Architecture::run_benchmarks(const std::string& vpr_path) {
     std::string command;
     FILE* res;
     double temp_area, temp_crit;
@@ -211,7 +211,7 @@ void Architecture::run_benchmarks() {
     // Run each benchmark
     for (Benchmark& b : bench) {
         // The command to give to popen
-        command = std::string(VPR_PATH) + " " + arch_file + " "
+        command = std::string(vpr_path) + " " + arch_file + " "
             + b.get_filename() + " -route_chan_width " + std::to_string(W);
 
         // Run the benchmark multiple times

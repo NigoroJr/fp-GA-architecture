@@ -7,6 +7,7 @@
 #include <bitset>
 #include <numeric>
 #include <random>
+#include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -68,7 +69,7 @@ public:
      * Creates a genetic algorithm runner with the given parameters.
      * The number of population must be greater than 1.
      */
-    GeneticAlgorithm(const Params& params,
+    GeneticAlgorithm(const Params& params, const std::string& vpr_path,
         const std::vector<Architecture::Benchmark>& benchmarks = {});
 
     // Copy constructor
@@ -162,6 +163,7 @@ private:
 
     Params params;
     std::vector<Architecture> architectures;
+    std::string vpr_path;
 
     /**
      * The population for the next generation.
