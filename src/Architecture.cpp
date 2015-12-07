@@ -21,6 +21,8 @@ Architecture Architecture::random() {
     arch.K = k_rgen(gen);
     arch.I = i_rgen(gen);
     arch.W = w_rgen(gen);
+    // Routing channel width must be even for unidirectional
+    arch.W = arch.W % 2 == 0 ? arch.W : arch.W + 1;
 
     return arch;
 }
