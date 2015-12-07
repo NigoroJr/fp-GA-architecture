@@ -22,7 +22,7 @@
 #define NUM_METRICS 3
 #define TEMP_K "num_pins=TEMP_K"
 #define TEMP_I "num_pb=TEMP_I"
-#define BENCH_ITER 10
+#define BENCH_ITER 1
 
 class Architecture {
 public:
