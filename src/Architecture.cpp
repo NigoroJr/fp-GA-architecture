@@ -174,8 +174,9 @@ std::string Architecture::make_arch_file() {
         {TEMP_I, "num_pb=\"" + std::to_string(I) + "\""}
     };
 
-    arch_file.reserve(128);
-    std::sprintf(&arch_file[0], "%d_%d_%d.xml", K, I, W);
+    char arch_file_buf[128];
+    std::sprintf(arch_file_buf, "%d_%d_%d.xml", K, I, W);
+    arch_file = std::string{arch_file_buf};
     // Open the files we need to read and write
     std::ifstream is("../arch_template.xml");
     std::ofstream os(arch_file);
@@ -210,15 +211,20 @@ std::string Architecture::make_arch_file() {
 }
 
 void Architecture::run_benchmarks(const std::string& vpr_path) {
-    std::string command;
     FILE* res;
     double temp_area, temp_crit;
 
     // Run each benchmark
     for (Benchmark& b : bench) {
         // The command to give to popen
-        command = std::string(vpr_path) + " " + arch_file + " "
-            + b.get_filename() + " -route_chan_width " + std::to_string(W);
+        char command_buf[512];
+        std::sprintf(command_buf,
+                     "%s %s %s -route_chan_width %d",
+                     vpr_path.c_str(),
+                     arch_file.c_str(),
+                     b.get_filename().c_str(),
+                     W);
+        std::string command{command_buf};
 
         // Run the benchmark multiple times
         for (unsigned i = 0; i < BENCH_ITER; i++) {
