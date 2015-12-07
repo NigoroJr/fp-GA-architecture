@@ -116,7 +116,7 @@ public:
     /* Member methods */
 
     /* Constructs the architecture file */
-    void make_arch_file();
+    std::string make_arch_file();
 
     /* Run each benchmark and store it in the benchmark object */
     void run_benchmarks(const std::string& vpr_path);

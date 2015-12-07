@@ -157,7 +157,7 @@ std::ostream& operator<<(std::ostream& os, const Architecture& a) {
     return os;
 }
 
-void Architecture::make_arch_file() {
+std::string Architecture::make_arch_file() {
     // Construct delay matrix based on K
     std::string line, temp = "2.690e-10";
     for (size_t i = 0; i < K - 1; i++) {
@@ -172,6 +172,8 @@ void Architecture::make_arch_file() {
         {TEMP_I, "num_pb=\"" + std::to_string(I) + "\""}
     };
 
+    arch_file.reserve(128);
+    std::sprintf(&arch_file[0], "%d_%d_%d.xml", K, I, W);
     // Open the files we need to read and write
     std::ifstream is("../arch_template.xml");
     std::ofstream os(arch_file);
@@ -201,6 +203,8 @@ void Architecture::make_arch_file() {
         ss.clear();
     }
     os.close();
+
+    return arch_file;
 }
 
 void Architecture::run_benchmarks(const std::string& vpr_path) {
