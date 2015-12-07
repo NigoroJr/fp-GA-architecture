@@ -4,6 +4,8 @@ std::random_device GeneticAlgorithm::rd;
 std::mt19937_64 GeneticAlgorithm::gen{rd()};
 std::uniform_real_distribution<float> GeneticAlgorithm::prob_gen{0, 1};
 
+using results_t = GeneticAlgorithm::results_t;
+using Comparator = GeneticAlgorithm::Comparator;
 using Params = GeneticAlgorithm::Params;
 
 /* Constructors, Destructor, and Assignment operators {{{ */
@@ -65,6 +67,16 @@ Params& Params::operator=(Params&& other) {
     return *this;
 }
 /* }}} */
+
+const Comparator GeneticAlgorithm::SPEED_COMP = [](const results_t& a,
+                                                   const results_t& b) {
+    return std::get<1>(a) < std::get<1>(b);
+};
+
+const Comparator GeneticAlgorithm::AREA_COMP = [](const results_t& a,
+                                                  const results_t& b) {
+    return std::get<2>(a) < std::get<2>(b);
+};
 
 /* Constructors, Destructor, and Assignment operators {{{ */
 // Default constructor
@@ -191,11 +203,47 @@ void GeneticAlgorithm::evaluate() {
 }
 
 void GeneticAlgorithm::select() {
-    auto comp = [](const Architecture& a, const Architecture& b) {
-        // TODO: compare results populated after simulation
-        return a.K < b.K;
-    };
-    std::sort(architectures.begin(), architectures.end(), comp);
+    // Look at each benchmark and compare architectures for that particular
+    // benchmark. Both the speed (critical path) and area are examined.
+    // Architectures with low performance gets penalized.
+    for (unsigned i = 0; i < architectures.front().bench.size(); i++) {
+        // A temporary vector to store the Architecture index, critical path
+        // for a certain benchmark, area of the same benchmark.
+        // This is used to sort the architectures according to either the
+        // critical path or the area and penalize inferior architectures.
+        // Values are:
+        // <index in `architectures' vector, crit_path, area>
+        std::vector<results_t> results;
+
+        // Populate with results from each architecture
+        for (unsigned j = 0; j < architectures.size(); j++) {
+            const Architecture::Benchmark& b = architectures[j].bench[i];
+            results.push_back(std::make_tuple(j, b.crit_path, b.area));
+        }
+
+        // Sort by speed (critical path)
+        std::sort(results.begin(), results.end(), SPEED_COMP);
+        for (unsigned j = 0; j < results.size(); j++) {
+            // Index after sort is the penalty
+            const unsigned arch_index = std::get<0>(results[j]);
+            // Penalize inferior organisms
+            architectures[arch_index].speed_penalty += j;
+        }
+
+        // Sort by area
+        std::sort(results.begin(), results.end(), AREA_COMP);
+        for (unsigned j = 0; j < results.size(); j++) {
+            // Index after sort is the penalty
+            const unsigned arch_index = std::get<0>(results[j]);
+            // Penalize inferior organisms
+            architectures[arch_index].area_penalty += j;
+        }
+    }
+
+    std::sort(architectures.begin(),
+              architectures.end(),
+              // Best architecture first
+              std::greater<Architecture>());
 
     // Copy the elites
     std::copy(architectures.begin(),

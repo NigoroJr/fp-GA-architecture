@@ -84,6 +84,8 @@ Architecture::Architecture()
     , I{UNSET}
     , W{UNSET}
     , bench{}
+    , speed_penalty{0}
+    , area_penalty{0}
     , arch_file{}
 { }
 
@@ -93,6 +95,8 @@ Architecture::Architecture(const Architecture& other)
     , I{other.I}
     , W{other.W}
     , bench{other.bench}
+    , speed_penalty{other.speed_penalty}
+    , area_penalty{other.area_penalty}
     , arch_file{other.arch_file}
 { }
 
@@ -102,6 +106,8 @@ Architecture::Architecture(Architecture&& other)
     , I{std::move(other.I)}
     , W{std::move(other.W)}
     , bench{std::move(other.bench)}
+    , speed_penalty{std::move(other.speed_penalty)}
+    , area_penalty{std::move(other.area_penalty)}
     , arch_file{std::move(other.arch_file)}
 { }
 
@@ -115,6 +121,8 @@ Architecture& Architecture::operator=(const Architecture& other) {
     I = other.I;
     W = other.W;
     bench = other.bench;
+    speed_penalty = other.speed_penalty;
+    area_penalty = other.area_penalty;
     arch_file = other.arch_file;
     return *this;
 }
@@ -125,6 +133,8 @@ Architecture& Architecture::operator=(Architecture&& other) {
     I = std::move(other.I);
     W = std::move(other.W);
     bench = std::move(other.bench);
+    speed_penalty = std::move(other.speed_penalty);
+    area_penalty = std::move(other.area_penalty);
     arch_file = std::move(other.arch_file);
     return *this;
 }
@@ -149,6 +159,14 @@ bool Architecture::operator!=(const Architecture& other) const {
     return K != other.K
         || I != other.I
         || W != other.W;
+}
+
+bool Architecture::operator>(const Architecture& other) const {
+    return speed_penalty + area_penalty < other.speed_penalty + other.area_penalty;
+}
+
+bool Architecture::operator<(const Architecture& other) const {
+    return speed_penalty + area_penalty > other.speed_penalty + other.area_penalty;
 }
 
 std::ostream& operator<<(std::ostream& os, const Architecture& a) {

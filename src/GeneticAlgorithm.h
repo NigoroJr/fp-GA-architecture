@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <bitset>
+#include <functional>
 #include <numeric>
 #include <random>
 #include <string>
@@ -18,6 +19,9 @@
 
 class GeneticAlgorithm {
 public:
+    using results_t = std::tuple<unsigned, double, double>;
+    using Comparator = std::function<bool(const results_t&, const results_t&)>;
+
     /**
      * Parameters used for the genetic algorithm.
      * See the definition of the default constructor of GeneticAlgorithm for
@@ -60,6 +64,10 @@ public:
         /* How often crossover happens */
         float crossover_occurrence_rate;
     };
+
+    // Comparators for sorting the results
+    static const Comparator SPEED_COMP;
+    static const Comparator AREA_COMP;
 
     /* Constructors, Destructor, and Assignment operators {{{ */
     // Default constructor
