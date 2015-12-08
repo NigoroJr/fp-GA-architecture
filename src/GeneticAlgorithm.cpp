@@ -218,7 +218,10 @@ void GeneticAlgorithm::select() {
         // Populate with results from each architecture
         for (unsigned j = 0; j < architectures.size(); j++) {
             const Architecture::Benchmark& b = architectures[j].bench[i];
-            results.push_back(std::make_tuple(j, b.crit_path, b.area));
+            if (b.crit_path != Architecture::Benchmark::FAILED
+                && b.area != Architecture::Benchmark::FAILED) {
+                results.push_back(std::make_tuple(j, b.crit_path, b.area));
+            }
         }
 
         // Sort by speed (critical path)
