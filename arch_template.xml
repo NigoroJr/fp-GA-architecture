@@ -180,8 +180,8 @@ Architecture based off Stratix IV
 
 
       <pb_type name="clb">
-        <input name="I" num_pins="33" equivalent="true"/>
-        <output name="O" num_pins="10" equivalent="false"/>
+        <input name="I" num_pins=CLB_IN equivalent="true"/>
+        <output name="O" num_pins=TEMP_N equivalent="false"/>
         <clock name="clk" num_pins="1"/>
 
         <!-- Describe basic logic element, with ifar delay numbers -->
@@ -203,7 +203,7 @@ Architecture based off Stratix IV
                 </delay_matrix>
               </pb_type>
               <interconnect>
-                <direct name="direct1" input="soft_logic.in[5:0]" output="lut6[0:0].in[5:0]"/>
+                <direct name="direct1" input="soft_logic.in[ TEMP_K_RANGE ]" output="lut6[0:0].in[ TEMP_K_RANGE ]"/>
                 <direct name="direct2" input="lut6[0:0].out" output="soft_logic.out[0:0]">
                   <!-- CAD related parameters -->
                   <!-- Advanced "power-user" options: Describe connections that belong to forced pack blocks to give hints to the packer on what blocks to keep together
@@ -233,13 +233,13 @@ Architecture based off Stratix IV
                 </interconnect>
               </pb_type>
               <interconnect>
-                <complete name="crossbar" input="clb.I ble[9:0].out" output="ble[9:0].in">
-                  <delay_constant max="8.044000e-11" in_port="clb.I" out_port="ble[9:0].in" />
-                  <delay_constant max="7.354000e-11" in_port="ble[9:0].out" out_port="ble[9:0].in" />
+                <complete name="crossbar" input="clb.I ble[ TEMP_N_RANGE ].out" output="ble[ TEMP_N_RANGE ].in">
+                  <delay_constant max="8.044000e-11" in_port="clb.I" out_port="ble [ TEMP_N_RANGE ].in" />
+                  <delay_constant max="7.354000e-11" in_port="ble[ TEMP_N_RANGE ].out" out_port="ble[ TEMP_N_RANGE ].in" />
                 </complete>
-                <complete name="clks" input="clb.clk" output="ble[9:0].clk">
+                <complete name="clks" input="clb.clk" output="ble[ TEMP_N_RANGE ].clk">
                 </complete>
-                <direct name="clbouts" input="ble[9:0].out" output="clb.O">
+                <direct name="clbouts" input="ble[ TEMP_N_RANGE ].out" output="clb.O">
                 </direct>
               </interconnect>
 
