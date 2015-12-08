@@ -37,6 +37,8 @@ public:
     static Architecture random();
 
     struct Benchmark {
+        static const double FAILED;
+
         /* Constructors, Destructor, and Assignment operators {{{ */
         // Default constructor
         Benchmark();
@@ -62,9 +64,9 @@ public:
 
         /* Method that parses the output of vpr in the form of a string.
          * res: stream of vpr results.
-         * output: a pair, with first representing area in minimum transistor units
-         *         and second representing critical path in ns. Return -1, -1 if all
-         *         metrics are not found.
+         * output: a pair, with first representing area in minimum transistor
+         *         units and second representing critical path in ns. Returns
+         *         pair (FAILED, FAILED) if all metrics are not found.
          */
         std::pair<double, double> parse_results(FILE* res);
 

@@ -14,6 +14,8 @@ u_dist_t Architecture::k_rgen{K_RANGE.first, K_RANGE.second};
 u_dist_t Architecture::w_rgen{W_RANGE.first, W_RANGE.second};
 u_dist_t Architecture::i_rgen{I_RANGE.first, I_RANGE.second};
 
+const double Benchmark::FAILED = -1;
+
 /* Static methods */
 
 Architecture Architecture::random() {
@@ -294,7 +296,7 @@ std::pair<double, double> Benchmark::parse_results(FILE* res) {
     for (size_t i = 0; i < NUM_METRICS;) {
         // If you get to end of stream, output failure
         if (!fgets(line, 256, res)) {
-            return std::pair<double, double>(-1, -1);
+            return std::pair<double, double>(FAILED, FAILED);
         }
         // If the stat we are looking for is found, parse the line
         if (std::regex_search(line, reg[i])) {
