@@ -210,9 +210,13 @@ std::string Architecture::make_arch_file() {
     // The unordered map that defined the parts of the template to replace and
     // with what
     std::unordered_map<std::string, std::string> temp_args = {
-        {TEMP_K, "num_pins=\"" + std::to_string(K) + "\""},
+        {TEMP_K, "num_pins=\"" + std::to_string(K) + "\" "},
+        {"TEMP_K_RANGE", std::to_string(K - 1) + ":0"},
         {"TEMP_DELAY", temp},
-        {TEMP_N, "num_pb=\"" + std::to_string(N) + "\""}
+        {TEMP_N, "num_pb=\"" + std::to_string(N) + "\""},
+        {"TEMP_N_RANGE", std::to_string(N - 1) + ":0"},
+        {TEMP_N_ALT, "num_pins=\"" + std::to_string(N) + "\" "},
+        {CLB_IN, "num_pins=\"" + std::to_string((K / 2) * (N + 1)) + "\" "}
     };
 
     char arch_file_buf[128];
@@ -239,8 +243,10 @@ std::string Architecture::make_arch_file() {
             }
             else {
                 os << temp;
+                if (temp.back() != '[') {
+                    os << " ";
+                }
             }
-            os << " ";
         }
         os << std::endl;
         ss.str(std::string());
@@ -280,6 +286,9 @@ void Architecture::run_benchmarks(const std::string& vpr_path) {
                 std::tie(temp_area, temp_crit) = b.parse_results(res);
                 b.area = std::min(b.area, temp_area);
                 b.crit_path = std::max(b.crit_path, temp_crit);
+            }
+            if (b.crit_path == -1) {
+                break;
             }
         }
     }
