@@ -77,6 +77,20 @@ Benchmark& Benchmark::operator=(Benchmark&& other) {
 }
 /* }}} */
 
+std::string Benchmark::to_s(unsigned indent) const {
+    std::ostringstream os;
+    // Whitespace for indentation
+    auto indent_str = std::string(indent, ' ');
+
+    os << benchmark << std::endl;
+    os << indent_str << "  " << std::setw(13) << std::left
+        << "Crit. Path:" << crit_path << std::endl;
+    os << indent_str << "  " << std::setw(13) << std::left
+        << "Area:" << area;
+
+    return os.str();
+}
+
 /* Constructors, Destructor, and Assignment operators {{{ */
 // Default constructor
 Architecture::Architecture()
@@ -170,9 +184,16 @@ bool Architecture::operator<(const Architecture& other) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Architecture& a) {
-    os << std::setw(30) << std::left << "W (channel width): " << a.W << std::endl;
-    os << std::setw(30) << std::left << "K (num inputs per LUT): " << a.K << std::endl;
-    os << std::setw(30) << std::left << "I (num of LUTs per cluster): " << a.I;
+    os << std::setw(30) << std::left
+        << "W (channel width): " << a.W << std::endl;
+    os << std::setw(30) << std::left
+        << "K (num inputs per LUT): " << a.K << std::endl;
+    os << std::setw(30) << std::left
+        << "I (num of LUTs per cluster): " << a.I << std::endl;
+    os << "with results:" << std::endl;
+    for (const Architecture::Benchmark& benchmark : a.bench) {
+        os << benchmark.to_s(2) << std::endl;
+    }
 
     return os;
 }

@@ -71,6 +71,14 @@ public:
         double get_crit_path();
         double get_area();
         std::string get_filename();
+        /**
+         * Creates a formatted string of the results that can be printed.
+         *
+         * \param[in] indent the indentation of the string.
+         *
+         * \return a string representation of the benchmark results.
+         */
+        std::string to_s(unsigned indent = 0u) const;
 
         double crit_path;
         double area;
