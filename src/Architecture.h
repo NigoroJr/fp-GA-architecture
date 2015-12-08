@@ -21,14 +21,14 @@
 #define SCIENTIFIC_NOTATION "[-]?[0-9]+\\.[0-9]+([e][-+][0-9]+)"
 #define NUM_METRICS 3
 #define TEMP_K "num_pins=TEMP_K"
-#define TEMP_I "num_pb=TEMP_I"
+#define TEMP_N "num_pb=TEMP_N"
 #define BENCH_ITER 1
 
 class Architecture {
 public:
     static const unsigned UNSET;
     static const std::pair<unsigned, unsigned> K_RANGE;
-    static const std::pair<unsigned, unsigned> I_RANGE;
+    static const std::pair<unsigned, unsigned> N_RANGE;
     static const std::pair<unsigned, unsigned> W_RANGE;
 
     /**
@@ -113,7 +113,7 @@ public:
     unsigned K;
 
     /* Number of logic elements in a cluster */
-    unsigned I;
+    unsigned N;
 
     /* Channel Width */
     unsigned W;
@@ -166,7 +166,7 @@ private:
     static std::mt19937_64 gen;
     static std::uniform_int_distribution<unsigned> k_rgen;
     static std::uniform_int_distribution<unsigned> w_rgen;
-    static std::uniform_int_distribution<unsigned> i_rgen;
+    static std::uniform_int_distribution<unsigned> n_rgen;
 
     /* The architecture file that represents the architecture */
     std::string arch_file;

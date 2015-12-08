@@ -185,7 +185,7 @@ Architecture based off Stratix IV
         <clock name="clk" num_pins="1"/>
 
         <!-- Describe basic logic element, with ifar delay numbers -->
-        <pb_type name="ble" num_pb=TEMP_I >
+        <pb_type name="ble" num_pb=TEMP_N >
           <input name="in" num_pins=TEMP_K />
           <output name="out" num_pins="1"/>
           <clock name="clk" num_pins="1"/>

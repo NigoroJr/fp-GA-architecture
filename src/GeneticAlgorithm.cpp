@@ -267,7 +267,7 @@ void GeneticAlgorithm::crossover() {
         std::tie(a, b) = get_two_architectures();
         Architecture child1, child2;
         std::tie(child1.K, child2.K) = crossover_helper(a.K, b.K);
-        std::tie(child1.I, child2.I) = crossover_helper(a.I, b.I);
+        std::tie(child1.N, child2.N) = crossover_helper(a.N, b.N);
         std::tie(child1.W, child2.W) = crossover_helper(a.W, b.W);
         // Routing channel width must be even for unidirectional
         child1.W = child1.W % 2 == 0 ? child1.W : child1.W + 1;
