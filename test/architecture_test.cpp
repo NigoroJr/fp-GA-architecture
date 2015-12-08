@@ -8,16 +8,16 @@
 BOOST_AUTO_TEST_CASE(architecture_ctor_test) {
     Architecture a1;
     BOOST_CHECK_EQUAL(a1.K, Architecture::UNSET);
-    BOOST_CHECK_EQUAL(a1.I, Architecture::UNSET);
+    BOOST_CHECK_EQUAL(a1.N, Architecture::UNSET);
     BOOST_CHECK_EQUAL(a1.W, Architecture::UNSET);
 
     a1.K = 1;
-    a1.I = 2;
+    a1.N = 2;
     a1.W = 3;
 
     Architecture a2{a1};
     BOOST_CHECK_EQUAL(a2.K, 1);
-    BOOST_CHECK_EQUAL(a2.I, 2);
+    BOOST_CHECK_EQUAL(a2.N, 2);
     BOOST_CHECK_EQUAL(a2.W, 3);
 }
 
@@ -25,12 +25,12 @@ BOOST_AUTO_TEST_CASE(architecture_mutate_test) {
     Architecture a1;
     a1.K = 4;
     a1.W = 50;
-    a1.I = 10;
+    a1.N = 10;
 
     a1.mutate(0);
     BOOST_CHECK_EQUAL(a1.K, 4);
     BOOST_CHECK_EQUAL(a1.W, 50);
-    BOOST_CHECK_EQUAL(a1.I, 10);
+    BOOST_CHECK_EQUAL(a1.N, 10);
 
     Architecture a2{a1};
     bool has_changed = false;
