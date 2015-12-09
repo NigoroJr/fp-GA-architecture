@@ -72,9 +72,9 @@ public:
          */
         std::pair<double, double> parse_results(FILE* res);
 
-        double get_crit_path();
-        double get_area();
-        std::string get_filename();
+        double get_crit_path() const;
+        double get_area() const;
+        const std::string& get_filename() const;
         bool failed() const;
         /**
          * Creates a formatted string of the results that can be printed.
@@ -176,15 +176,15 @@ private:
     std::string arch_file;
 };
 
-inline double Architecture::Benchmark::get_crit_path() {
+inline double Architecture::Benchmark::get_crit_path() const {
     return crit_path;
 }
 
-inline double Architecture::Benchmark::get_area() {
+inline double Architecture::Benchmark::get_area() const {
     return area;
 }
 
-inline std::string Architecture::Benchmark::get_filename() {
+inline const std::string& Architecture::Benchmark::get_filename() const {
     return benchmark;
 }
 
