@@ -201,14 +201,12 @@ std::ostream& operator<<(std::ostream& os, const Architecture& a) {
 }
 
 std::string Architecture::make_arch_file() {
-    struct stat s;
     char folder_buf[80];
     std::sprintf(folder_buf,
             "./%d_%d_%d",
             K, N, W);
-    if (stat(folder_buf, &s) == -1) {
-        mkdir(folder_buf, 0700);
-    }
+#pragma omp critical
+    mkdir(folder_buf, 0700);
     dir = std::string{folder_buf};
 
     // Construct delay matrix based on K
@@ -287,7 +285,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
         char command_abc[512];
         char command_vpr[512];
         std::sprintf(command_abc,
-                "%svtr_flow/scripts/run_vtr_flow.pl %s %s -starting_stage abc -ending_stage abc -keep_intermediate_files -keep_result_files -temp_dir %s",
+                "%svtr_flow/scripts/run_vtr_flow.pl %s %s -starting_stage abc -ending_stage abc -keep_intermediate_files -keep_result_files -temp_dir %s >> /dev/null",
                 vtr_path.c_str(),
                 b.get_filename().c_str(),
                 arch_file.c_str(),
@@ -331,6 +329,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
         }
     }
     system(("rm -rf " + dir).c_str());
+    system("rm core.* 2>> /dev/null");
 }
 
 std::pair<double, double> Benchmark::parse_results(FILE* res) {
