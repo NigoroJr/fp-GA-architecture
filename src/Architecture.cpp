@@ -266,6 +266,11 @@ std::string Architecture::make_arch_file() {
 void Architecture::run_benchmarks(const std::string& vpr_path) {
     // Run each benchmark
     for (Benchmark& b : bench) {
+        // Don't need to rerun VPR if already run
+        if (b.is_populated) {
+            continue;
+        }
+
         // The command to give to popen
         char command_buf[512];
         std::sprintf(command_buf,
