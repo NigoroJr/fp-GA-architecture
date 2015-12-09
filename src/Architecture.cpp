@@ -273,7 +273,7 @@ inline std::string get_basename(const std::string& path) {
     return path.substr(start, len);
 }
 
-void Architecture::run_benchmarks(const std::string& vpr_path) {
+void Architecture::run_benchmarks(const std::string& vtr_path) {
     FILE* res;
     double temp_area, temp_crit;
     std::string path;
@@ -288,18 +288,24 @@ void Architecture::run_benchmarks(const std::string& vpr_path) {
         char command_vpr[512];
         std::sprintf(command_abc,
                 "%svtr_flow/scripts/run_vtr_flow.pl %s %s -starting_stage abc -ending_stage abc -keep_intermediate_files -keep_result_files -temp_dir %s",
-                vpr_path.c_str(),
+                vtr_path.c_str(),
                 b.get_filename().c_str(),
                 arch_file.c_str(),
                 path.c_str());
         std::string command1{command_abc};
+#pragma omp critical
         system(command_abc);
+
+        std::string new_blif = path + get_basename(b.get_filename()) + ".abc.blif";
+        if (access(new_blif.c_str(), F_OK) == -1) {
+            continue;
+        }
 
         std::sprintf(command_vpr,
                 "%s/vpr/vpr %s %s -route_chan_width %d",
-                vpr_path.c_str(),
+                vtr_path.c_str(),
                 arch_file.c_str(),
-                (path + get_basename(b.get_filename()) + ".abc.blif").c_str(),
+                new_blif.c_str(),
                 W);
         std::string command{command_vpr};
 
@@ -322,6 +328,7 @@ void Architecture::run_benchmarks(const std::string& vpr_path) {
             }
         }
     }
+    system(("rm -rf " + dir).c_str());
 }
 
 std::pair<double, double> Benchmark::parse_results(FILE* res) {
