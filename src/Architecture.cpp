@@ -303,22 +303,22 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
             continue;
         }
 
-        int seed = rd();
-        if (seed < 0) {
-            seed = -1 * seed;
-        } else if (seed == 0) {
-            seed++;
-        }
-        std::sprintf(command_vpr,
-                "%s/vpr/vpr %s %s -route_chan_width %d -seed %d",
-                vtr_path.c_str(),
-                arch_file.c_str(),
-                new_blif.c_str(),
-                W, seed);
-        std::string command{command_vpr};
-
         // Run the benchmark multiple times
         for (unsigned i = 0; i < BENCH_ITER; i++) {
+            int seed = rd();
+            if (seed < 0) {
+                seed = -1 * seed;
+            } else if (seed == 0) {
+                seed++;
+            }
+            std::sprintf(command_vpr,
+                    "%s/vpr/vpr %s %s -route_chan_width %d -seed %d",
+                    vtr_path.c_str(),
+                    arch_file.c_str(),
+                    new_blif.c_str(),
+                    W, seed);
+            std::string command{command_vpr};
+
             // Run vpr
             FILE* res = popen(command.c_str(), "r");
 
