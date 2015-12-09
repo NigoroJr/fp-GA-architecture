@@ -75,6 +75,7 @@ public:
         double get_crit_path();
         double get_area();
         std::string get_filename();
+        bool failed() const;
         /**
          * Creates a formatted string of the results that can be printed.
          *
@@ -87,6 +88,7 @@ public:
         double crit_path;
         double area;
         std::string benchmark;
+        bool is_populated;
     };
 
     /* Constructors, Destructor, and Assignment operators {{{ */
@@ -184,6 +186,10 @@ inline double Architecture::Benchmark::get_area() {
 
 inline std::string Architecture::Benchmark::get_filename() {
     return benchmark;
+}
+
+inline bool Architecture::Benchmark::failed() const {
+    return crit_path == FAILED || area == FAILED;
 }
 
 /* Stream insertion operator */
