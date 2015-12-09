@@ -1,6 +1,9 @@
 #ifndef ARCHITECTURE_H_
 #define ARCHITECTURE_H_
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -14,6 +17,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #define CRIT_PATH "Final critical path:"
 #define LOGIC_AREA "Total used logic block area:"
@@ -169,6 +173,9 @@ private:
     static std::uniform_int_distribution<unsigned> k_rgen;
     static std::uniform_int_distribution<unsigned> w_rgen;
     static std::uniform_int_distribution<unsigned> n_rgen;
+    
+    /* Directory to hold related files */
+    std::string dir;
 
     /* The architecture file that represents the architecture */
     std::string arch_file;

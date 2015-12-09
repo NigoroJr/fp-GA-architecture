@@ -201,6 +201,16 @@ std::ostream& operator<<(std::ostream& os, const Architecture& a) {
 }
 
 std::string Architecture::make_arch_file() {
+    struct stat s;
+    char folder_buf[80];
+    std::sprintf(folder_buf,
+            "./%d_%d_%d",
+            K, N, W);
+    if (stat(folder_buf, &s) == -1) {
+        mkdir(folder_buf, 0700);
+    }
+    dir = std::string{folder_buf};
+
     // Construct delay matrix based on K
     std::string line, temp = "2.690e-10";
     for (size_t i = 0; i < K - 1; i++) {
@@ -220,7 +230,7 @@ std::string Architecture::make_arch_file() {
     };
 
     char arch_file_buf[128];
-    std::sprintf(arch_file_buf, "%d_%d_%d.xml", K, N, W);
+    std::sprintf(arch_file_buf, "%s/%d_%d_%d.xml", dir.c_str(), K, N, W);
     arch_file = std::string{arch_file_buf};
     // Open the files we need to read and write
     std::ifstream is("../arch_template.xml");
@@ -257,21 +267,41 @@ std::string Architecture::make_arch_file() {
     return arch_file;
 }
 
+inline std::string get_basename(const std::string& path) {
+    size_t start = path.rfind('/') + 1;
+    size_t len = path.rfind('.') - start;
+    return path.substr(start, len);
+}
+
 void Architecture::run_benchmarks(const std::string& vpr_path) {
     FILE* res;
     double temp_area, temp_crit;
+    std::string path;
 
     // Run each benchmark
     for (Benchmark& b : bench) {
+        path = dir + '/' + get_basename(b.get_filename());
+        mkdir(path.c_str(), 0700);
+        path += '/';
         // The command to give to popen
-        char command_buf[512];
-        std::sprintf(command_buf,
-                     "%s %s %s -route_chan_width %d",
-                     vpr_path.c_str(),
-                     arch_file.c_str(),
-                     b.get_filename().c_str(),
-                     W);
-        std::string command{command_buf};
+        char command_abc[512];
+        char command_vpr[512];
+        std::sprintf(command_abc,
+                "%svtr_flow/scripts/run_vtr_flow.pl %s %s -starting_stage abc -ending_stage abc -keep_intermediate_files -keep_result_files -temp_dir %s",
+                vpr_path.c_str(),
+                b.get_filename().c_str(),
+                arch_file.c_str(),
+                path.c_str());
+        std::string command1{command_abc};
+        system(command_abc);
+
+        std::sprintf(command_vpr,
+                "%s/vpr/vpr %s %s -route_chan_width %d",
+                vpr_path.c_str(),
+                arch_file.c_str(),
+                (path + get_basename(b.get_filename()) + ".abc.blif").c_str(),
+                W);
+        std::string command{command_vpr};
 
         // Run the benchmark multiple times
         for (unsigned i = 0; i < BENCH_ITER; i++) {
