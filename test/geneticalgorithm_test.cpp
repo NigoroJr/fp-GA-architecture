@@ -13,14 +13,14 @@ BOOST_AUTO_TEST_CASE(ga_ctor_test) {
 }
 
 BOOST_AUTO_TEST_CASE(ga_change_generation_test) {
-    // With no change in generation, all generations should be the same
     GeneticAlgorithm ga1{GeneticAlgorithm::Params{2, 0, 0.0, 0.0, 0.0}, ""};
 
     auto before = ga1.population();
     ga1.change_generation();
     auto after = ga1.population();
-    bool same = before == after;
-    BOOST_CHECK(same);
+    // Organisms should be replaced (at high probability)
+    bool different = before != after;
+    BOOST_CHECK(different);
 }
 
 BOOST_AUTO_TEST_CASE(ga_crossover_test) {
