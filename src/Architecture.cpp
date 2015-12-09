@@ -35,6 +35,7 @@ Benchmark::Benchmark()
     : crit_path{UNSET}
     , area{UNSET}
     , benchmark{""}
+    , is_populated{false}
 { }
 
 // Copy constructor
@@ -42,6 +43,7 @@ Benchmark::Benchmark(const Benchmark& other)
     : crit_path{other.crit_path}
     , area{other.area}
     , benchmark{other.benchmark}
+    , is_populated{other.is_populated}
 { }
 
 // Move constructor
@@ -49,6 +51,7 @@ Benchmark::Benchmark(Benchmark&& other)
     : crit_path{std::move(other.crit_path)}
     , area{std::move(other.area)}
     , benchmark{std::move(other.benchmark)}
+    , is_populated{std::move(other.is_populated)}
 { }
 
 // Filename constructor
@@ -56,6 +59,7 @@ Benchmark::Benchmark(const std::string& filename)
     : crit_path{UNSET}
     , area{UNSET}
     , benchmark{filename}
+    , is_populated{false}
 { }
 
 // Destructor
@@ -67,6 +71,7 @@ Benchmark& Benchmark::operator=(const Benchmark& other) {
     crit_path = other.crit_path;
     area = other.area;
     benchmark = other.benchmark;
+    is_populated = other.is_populated;
     return *this;
 }
 
@@ -75,6 +80,7 @@ Benchmark& Benchmark::operator=(Benchmark&& other) {
     crit_path = std::move(other.crit_path);
     area = std::move(other.area);
     benchmark = std::move(other.benchmark);
+    is_populated = std::move(other.is_populated);
     return *this;
 }
 /* }}} */
@@ -271,10 +277,7 @@ inline std::string get_basename(const std::string& path) {
 }
 
 void Architecture::run_benchmarks(const std::string& vtr_path) {
-    FILE* res;
-    double temp_area, temp_crit;
     std::string path;
-
     // Run each benchmark
     for (Benchmark& b : bench) {
         path = dir + '/' + get_basename(b.get_filename());
@@ -311,18 +314,24 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
         // Run the benchmark multiple times
         for (unsigned i = 0; i < BENCH_ITER; i++) {
             // Run vpr
-            res = popen(command.c_str(), "r");
+            FILE* res = popen(command.c_str(), "r");
+
+            double res_area, res_crit;
+            std::tie(res_area, res_crit) = b.parse_results(res);
 
             // Save the results of the benchmark
-            if (b.crit_path == UNSET) {
-                std::tie(b.area, b.crit_path) = b.parse_results(res);
+            if (b.is_populated) {
+                b.area = std::min(b.area, res_area);
+                b.crit_path = std::min(b.crit_path, res_crit);
             }
-            else {
-                std::tie(temp_area, temp_crit) = b.parse_results(res);
-                b.area = std::min(b.area, temp_area);
-                b.crit_path = std::max(b.crit_path, temp_crit);
+            else if (!b.failed()) {
+                b.area = res_area;
+                b.crit_path = res_crit;
+
+                b.is_populated = true;
             }
-            if (b.crit_path == -1) {
+
+            if (b.failed()) {
                 break;
             }
         }
