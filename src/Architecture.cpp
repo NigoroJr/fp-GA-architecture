@@ -3,9 +3,9 @@
 using Benchmark = Architecture::Benchmark;
 
 const unsigned Architecture::UNSET = 0;
-const std::pair<unsigned, unsigned> Architecture::K_RANGE{2, 50};
-const std::pair<unsigned, unsigned> Architecture::N_RANGE{1, 100};
-const std::pair<unsigned, unsigned> Architecture::W_RANGE{1, 5000};
+const std::pair<unsigned, unsigned> Architecture::K_RANGE{2, 25};
+const std::pair<unsigned, unsigned> Architecture::N_RANGE{1, 50};
+const std::pair<unsigned, unsigned> Architecture::W_RANGE{1, 250};
 std::random_device Architecture::rd;
 std::mt19937_64 Architecture::gen{rd()};
 
