@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     float crossover_occurrence_rate = 0.05;
     bool show_help = false;
 
-    std::string usage = " <path to vpr> <benchmark1> [benchmark2, benchmark3, ...]";
+    std::string usage = " <path to vtr> <benchmark1> [benchmark2, benchmark3, ...]";
     cxxopts::Options options{argv[0], usage};
     options.add_options()
         ("p,population-size", "The number of population",
@@ -53,7 +53,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string vpr_path{argv[1]};
+    std::string vtr_path{argv[1]};
+    if (vtr_path.back() != '/') {
+        vtr_path += '/';
+    }
     // Add benchmarks
     std::vector<Architecture::Benchmark> benchmarks;
     for (int i = 2; i < argc; i++) {
@@ -67,7 +70,7 @@ int main(int argc, char* argv[]) {
         mutation_amount,
         crossover_occurrence_rate
     };
-    GeneticAlgorithm ga{params, vpr_path, benchmarks};
+    GeneticAlgorithm ga{params, vtr_path, benchmarks};
 
     std::signal(SIGINT, signal_handler);
     unsigned cnt = 0;

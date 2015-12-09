@@ -143,7 +143,7 @@ public:
     std::string make_arch_file();
 
     /* Run each benchmark and store it in the benchmark object */
-    void run_benchmarks(const std::string& vpr_path);
+    void run_benchmarks(const std::string& vtr_path);
 
     /**
      * Changes the property of this architecture.
