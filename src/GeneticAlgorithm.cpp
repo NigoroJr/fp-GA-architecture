@@ -289,15 +289,18 @@ void GeneticAlgorithm::mutate() {
 }
 
 void GeneticAlgorithm::change_generation() {
-    if (next_generation.size() > architectures.size()) {
+    const unsigned num_pop = params.num_population;
+    if (next_generation.size() > num_pop) {
         // Throw away any excessive entities
-        next_generation.resize(architectures.size());
+        next_generation.resize(num_pop);
     }
 
-    // Replace the last N entities of the current population with the next
-    for (unsigned i = 0; i < next_generation.size(); i++) {
-        architectures[architectures.size() - 1 - i] = next_generation[i];
+    // If there's not enough population, randomly generate some
+    for (unsigned i = 0; i < num_pop - next_generation.size(); i++) {
+        next_generation.push_back(Architecture::random());
     }
+
+    architectures = next_generation;
 }
 
 /* Private methods */
