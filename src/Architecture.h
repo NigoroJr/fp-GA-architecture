@@ -24,10 +24,6 @@
 #define ROUTE_AREA "Total routing area:"
 #define SCIENTIFIC_NOTATION "[-]?[0-9]+\\.[0-9]+([e][-+][0-9]+)"
 #define NUM_METRICS 3
-#define TEMP_K "num_pins=TEMP_K"
-#define TEMP_N "num_pb=TEMP_N"
-#define TEMP_N_ALT "num_pins=TEMP_N"
-#define CLB_IN "num_pins=CLB_IN"
 #define BENCH_ITER 1
 
 class Architecture {

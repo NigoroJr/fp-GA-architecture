@@ -218,13 +218,12 @@ std::string Architecture::make_arch_file() {
     // The unordered map that defined the parts of the template to replace and
     // with what
     std::unordered_map<std::string, std::string> temp_args = {
-        {TEMP_K, "num_pins=\"" + std::to_string(K) + "\" "},
+        {"TEMP_K", "\"" + std::to_string(K) + "\" "},
         {"TEMP_K_RANGE", std::to_string(K - 1) + ":0"},
         {"TEMP_DELAY", temp},
-        {TEMP_N, "num_pb=\"" + std::to_string(N) + "\""},
+        {"TEMP_N", "\"" + std::to_string(N) + "\" "},
         {"TEMP_N_RANGE", std::to_string(N - 1) + ":0"},
-        {TEMP_N_ALT, "num_pins=\"" + std::to_string(N) + "\" "},
-        {CLB_IN, "num_pins=\"" + std::to_string((K / 2) * (N + 1)) + "\" "}
+        {"CLB_IN", "\"" + std::to_string((K / 2) * (N + 1)) + "\" "}
     };
 
     char arch_file_buf[128];
@@ -251,7 +250,7 @@ std::string Architecture::make_arch_file() {
             }
             else {
                 os << temp;
-                if (temp.back() != '[') {
+                if (temp.back() != '[' && temp.back() != '=') {
                     os << " ";
                 }
             }
