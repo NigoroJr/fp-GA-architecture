@@ -298,6 +298,8 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
 
         std::string new_blif = path + get_basename(b.get_filename()) + ".abc.blif";
         if (access(new_blif.c_str(), F_OK) == -1) {
+            b.crit_path = Benchmark::FAILED;
+            b.area = Benchmark::FAILED;
             continue;
         }
 
