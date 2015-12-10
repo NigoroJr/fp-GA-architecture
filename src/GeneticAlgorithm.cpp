@@ -11,15 +11,18 @@ using Params = GeneticAlgorithm::Params;
 /* Constructors, Destructor, and Assignment operators {{{ */
 // Default constructor
 Params::Params()
+    : Params(10, 1, 10, 0.05, 0.05, 0.01)
 { }
 
 Params::Params(unsigned num_population,
                unsigned elites_preserve,
+               unsigned num_selection,
                float mutation_occurrence_rate,
                float mutation_amount,
                float crossover_occurrence_rate)
     : num_population{num_population}
     , elites_preserve{elites_preserve}
+    , num_selection{num_selection}
     , mutation_occurrence_rate{mutation_occurrence_rate}
     , mutation_amount{mutation_amount}
     , crossover_occurrence_rate{crossover_occurrence_rate}
@@ -29,6 +32,7 @@ Params::Params(unsigned num_population,
 Params::Params(const Params& other)
     : num_population{other.num_population}
     , elites_preserve{other.elites_preserve}
+    , num_selection{other.num_selection}
     , mutation_occurrence_rate{other.mutation_occurrence_rate}
     , mutation_amount{other.mutation_amount}
     , crossover_occurrence_rate{other.crossover_occurrence_rate}
@@ -38,6 +42,7 @@ Params::Params(const Params& other)
 Params::Params(Params&& other)
     : num_population{std::move(other.num_population)}
     , elites_preserve{std::move(other.elites_preserve)}
+    , num_selection{std::move(other.num_selection)}
     , mutation_occurrence_rate{std::move(other.mutation_occurrence_rate)}
     , mutation_amount{std::move(other.mutation_amount)}
     , crossover_occurrence_rate{std::move(other.crossover_occurrence_rate)}
@@ -51,6 +56,7 @@ Params::~Params()
 Params& Params::operator=(const Params& other) {
     num_population = other.num_population;
     elites_preserve = other.elites_preserve;
+    num_selection = other.num_selection;
     mutation_occurrence_rate = other.mutation_occurrence_rate;
     mutation_amount = other.mutation_amount;
     crossover_occurrence_rate = other.crossover_occurrence_rate;
@@ -61,6 +67,7 @@ Params& Params::operator=(const Params& other) {
 Params& Params::operator=(Params&& other) {
     num_population = std::move(other.num_population);
     elites_preserve = std::move(other.elites_preserve);
+    num_selection = std::move(other.num_selection);
     mutation_occurrence_rate = std::move(other.mutation_occurrence_rate);
     mutation_amount = std::move(other.mutation_amount);
     crossover_occurrence_rate = std::move(other.crossover_occurrence_rate);
@@ -68,20 +75,15 @@ Params& Params::operator=(Params&& other) {
 }
 /* }}} */
 
-const Comparator GeneticAlgorithm::SPEED_COMP = [](const results_t& a,
-                                                   const results_t& b) {
-    return std::get<1>(a) < std::get<1>(b);
-};
-
-const Comparator GeneticAlgorithm::AREA_COMP = [](const results_t& a,
-                                                  const results_t& b) {
-    return std::get<2>(a) < std::get<2>(b);
-};
-
 /* Constructors, Destructor, and Assignment operators {{{ */
 // Default constructor
 GeneticAlgorithm::GeneticAlgorithm()
-    : GeneticAlgorithm(Params{10, 1, 0.05, 0.05, 0.01}, "")
+    : params{}
+    , architectures{}
+    , vpr_path{}
+    , selected{}
+    , next_generation{}
+    , weights{}
 { }
 
 GeneticAlgorithm::GeneticAlgorithm(const Params& params, const std::string& vpr_path,
@@ -89,6 +91,7 @@ GeneticAlgorithm::GeneticAlgorithm(const Params& params, const std::string& vpr_
     : params{params}
     , architectures{params.num_population}
     , vpr_path{vpr_path}
+    , selected{}
     , next_generation{}
 {
     fill_random_population(architectures.begin(), architectures.end());
@@ -120,6 +123,7 @@ GeneticAlgorithm::GeneticAlgorithm(const GeneticAlgorithm& other)
     : params{other.params}
     , architectures{other.architectures}
     , vpr_path{other.vpr_path}
+    , selected{other.selected}
     , next_generation{other.next_generation}
     , weights{other.weights}
 {
@@ -133,6 +137,7 @@ GeneticAlgorithm::GeneticAlgorithm(GeneticAlgorithm&& other)
     : params{std::move(other.params)}
     , architectures{std::move(other.architectures)}
     , vpr_path{std::move(other.vpr_path)}
+    , selected{std::move(other.selected)}
     , next_generation{std::move(other.next_generation)}
     , weights{std::move(other.weights)}
     , biased_gen{std::move(other.biased_gen)}
@@ -147,6 +152,7 @@ GeneticAlgorithm& GeneticAlgorithm::operator=(const GeneticAlgorithm& other) {
     params = other.params;
     architectures = other.architectures;
     next_generation = other.next_generation;
+    selected = other.selected;
     vpr_path = other.vpr_path;
     weights = other.weights;
     biased_gen = std::uniform_real_distribution<float>{
@@ -160,6 +166,7 @@ GeneticAlgorithm& GeneticAlgorithm::operator=(GeneticAlgorithm&& other) {
     params = std::move(other.params);
     architectures = std::move(other.architectures);
     next_generation = std::move(other.next_generation);
+    selected = std::move(other.selected);
     vpr_path = std::move(other.vpr_path);
     weights = std::move(other.weights);
     biased_gen = std::move(other.biased_gen);
@@ -168,6 +175,9 @@ GeneticAlgorithm& GeneticAlgorithm::operator=(GeneticAlgorithm&& other) {
 /* }}} */
 
 void GeneticAlgorithm::run_generation() {
+    next_generation.clear();
+    selected.clear();
+
     evaluate();
     select();
     // Note: architectures sorted after call to select
@@ -203,67 +213,23 @@ void GeneticAlgorithm::evaluate() {
 }
 
 void GeneticAlgorithm::select() {
-    // Look at each benchmark and compare architectures for that particular
-    // benchmark. Both the speed (critical path) and area are examined.
-    // Architectures with low performance gets penalized.
-    for (unsigned i = 0; i < architectures.front().bench.size(); i++) {
-        // A temporary vector to store the Architecture index, critical path
-        // for a certain benchmark, area of the same benchmark.
-        // This is used to sort the architectures according to either the
-        // critical path or the area and penalize inferior architectures.
-        // Values are:
-        // <index in `architectures' vector, crit_path, area>
-        std::vector<results_t> results;
-
-        // Populate with results from each architecture
-        for (unsigned j = 0; j < architectures.size(); j++) {
-            const Architecture::Benchmark& b = architectures[j].bench[i];
-            if (!b.failed()) {
-                results.push_back(std::make_tuple(j, b.crit_path, b.area));
-            }
-        }
-
-        // Sort by speed (critical path)
-        std::sort(results.begin(), results.end(), SPEED_COMP);
-        for (unsigned j = 0; j < results.size(); j++) {
-            // Index after sort is the penalty
-            const unsigned arch_index = std::get<0>(results[j]);
-            // Penalize inferior organisms
-            architectures[arch_index].speed_penalty += j;
-        }
-
-        // Sort by area
-        std::sort(results.begin(), results.end(), AREA_COMP);
-        for (unsigned j = 0; j < results.size(); j++) {
-            // Index after sort is the penalty
-            const unsigned arch_index = std::get<0>(results[j]);
-            // Penalize inferior organisms
-            architectures[arch_index].area_penalty += j;
-        }
-    }
-
-    std::sort(architectures.begin(),
-              architectures.end(),
-              // Best architecture first
-              std::greater<Architecture>());
+    sort_population();
 
     // Copy the elites
     std::copy(architectures.begin(),
               architectures.begin() + params.elites_preserve,
               std::back_inserter(next_generation));
 
-    // The non-elites
-    const unsigned offset = params.elites_preserve;
-    for (unsigned i = 0; i < architectures.size() - offset; i++) {
-        next_generation.push_back(architectures[get_biased_index(offset)]);
+    // Select what to crossever/mutate from
+    for (unsigned i = 0; i < params.num_selection; i++) {
+        selected.push_back(architectures[get_biased_index()]);
     }
 }
 
 void GeneticAlgorithm::crossover() {
-    // TODO: for each organism?
     if (trigger(params.crossover_occurrence_rate)) {
         Architecture a, b;
-        std::tie(a, b) = get_two_random(next_generation);
+        std::tie(a, b) = get_two_random(selected);
         Architecture child1, child2;
         std::tie(child1.K, child2.K) = crossover_helper(a.K, b.K);
         std::tie(child1.N, child2.N) = crossover_helper(a.N, b.N);
@@ -278,7 +244,7 @@ void GeneticAlgorithm::crossover() {
 }
 
 void GeneticAlgorithm::mutate() {
-    for (const Architecture& arch : architectures) {
+    for (const Architecture& arch : selected) {
         if (trigger(params.mutation_occurrence_rate)) {
             Architecture mutant{arch};
             mutant.mutate(params.mutation_amount);
@@ -348,4 +314,14 @@ std::pair<T, T> GeneticAlgorithm::crossover_helper(const T& val1, const T& val2)
     T avg = (val1 + val2) / 2;
 
     return std::make_pair(static_cast<T>(res.to_ulong()), avg);
+}
+
+void GeneticAlgorithm::sort_population() {
+    const auto comp = [](const Architecture& a, const Architecture& b) {
+        auto a_avg = (a.vs_ref_crit_path() + a.vs_ref_area()) / 2;
+        auto b_avg = (b.vs_ref_crit_path() + b.vs_ref_area()) / 2;
+        // The smaller the ration compared to ref the better
+        return a_avg < b_avg;
+    };
+    std::sort(architectures.begin(), architectures.end(), comp);
 }

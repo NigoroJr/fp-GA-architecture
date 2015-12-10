@@ -127,6 +127,9 @@ public:
     /* All benchmarks to test with */
     std::vector<Benchmark> bench;
 
+    /* The results used as a reference to measure performance gain */
+    std::vector<Benchmark> reference_results;
+
     /**
      * Used for determining whether an architecture is better or worse than
      * another architecture.
@@ -149,6 +152,26 @@ public:
      * \param[in] amount percentage of the change.
      */
     void mutate(const float amount);
+
+    /**
+     * The average ratio of the benchmarks compared to the reference results.
+     * For example, if the following results are observed,
+     *
+     *        | Ref | This | Ratio
+     * -------+-----+------+------
+     * Bench1 | 16  |   12 |  0.75
+     * Bench2 | 40  |   32 |  0.80
+     *
+     * Avg: 0.775
+     *
+     * \return the average ratio of the benchmarks compared to the reference
+     */
+    float vs_ref_crit_path() const;
+
+    /**
+     * Same as vs_ref_crit_path but for area.
+     */
+    float vs_ref_area() const;
 
     bool operator==(const Architecture& other) const;
     bool operator!=(const Architecture& other) const;

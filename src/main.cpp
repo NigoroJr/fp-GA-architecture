@@ -18,6 +18,7 @@ int main(int argc, char* argv[]) {
     unsigned interval = 50;
     unsigned num_population = 10;
     unsigned elites_preserve = 2;
+    unsigned num_selection = 5;
     float mutation_occurrence_rate = 0.05;
     float mutation_amount = 0.05;
     float crossover_occurrence_rate = 0.05;
@@ -32,6 +33,8 @@ int main(int argc, char* argv[]) {
          cxxopts::value(interval))
         ("e,elites", "Number of elites to preserve",
          cxxopts::value(elites_preserve))
+        ("s,selection", "Number of architectures to crossover/mutate from",
+         cxxopts::value(num_selection))
         ("o,mutation-occurrence", "The probability of mutations to occur",
          cxxopts::value(mutation_occurrence_rate))
         ("a,mutation-ammount", "The variation in percentage of the mutation",
@@ -63,6 +66,7 @@ int main(int argc, char* argv[]) {
     GeneticAlgorithm::Params params{
         num_population,
         elites_preserve,
+        num_selection,
         mutation_occurrence_rate,
         mutation_amount,
         crossover_occurrence_rate

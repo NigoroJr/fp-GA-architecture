@@ -106,6 +106,7 @@ Architecture::Architecture()
     , N{UNSET}
     , W{UNSET}
     , bench{}
+    , reference_results{}
     , speed_penalty{0}
     , area_penalty{0}
     , arch_file{}
@@ -117,6 +118,7 @@ Architecture::Architecture(const Architecture& other)
     , N{other.N}
     , W{other.W}
     , bench{other.bench}
+    , reference_results{other.reference_results}
     , speed_penalty{other.speed_penalty}
     , area_penalty{other.area_penalty}
     , arch_file{other.arch_file}
@@ -128,6 +130,7 @@ Architecture::Architecture(Architecture&& other)
     , N{std::move(other.N)}
     , W{std::move(other.W)}
     , bench{std::move(other.bench)}
+    , reference_results{std::move(other.reference_results)}
     , speed_penalty{std::move(other.speed_penalty)}
     , area_penalty{std::move(other.area_penalty)}
     , arch_file{std::move(other.arch_file)}
@@ -143,6 +146,7 @@ Architecture& Architecture::operator=(const Architecture& other) {
     N = other.N;
     W = other.W;
     bench = other.bench;
+    reference_results = other.reference_results;
     speed_penalty = other.speed_penalty;
     area_penalty = other.area_penalty;
     arch_file = other.arch_file;
@@ -155,6 +159,7 @@ Architecture& Architecture::operator=(Architecture&& other) {
     N = std::move(other.N);
     W = std::move(other.W);
     bench = std::move(other.bench);
+    reference_results = std::move(other.reference_results);
     speed_penalty = std::move(other.speed_penalty);
     area_penalty = std::move(other.area_penalty);
     arch_file = std::move(other.arch_file);
@@ -264,8 +269,18 @@ std::string Architecture::make_arch_file() {
 }
 
 void Architecture::run_benchmarks(const std::string& vpr_path) {
+    // If this is the first generation, also save the results as reference
+    if (reference_results.empty()) {
+        reference_results.resize(bench.size());
+        // Fill with unpopulated results
+        std::generate(reference_results.begin(),
+                      reference_results.end(),
+                      []() { return Benchmark(); });
+    }
+
     // Run each benchmark
-    for (Benchmark& b : bench) {
+    for (unsigned i = 0; i < bench.size(); i++) {
+        Benchmark& b = bench[i];
         // Don't need to rerun VPR if already run
         if (b.is_populated) {
             continue;
@@ -299,6 +314,12 @@ void Architecture::run_benchmarks(const std::string& vpr_path) {
                 b.crit_path = res_crit;
 
                 b.is_populated = true;
+
+                // Save as reference values
+                if (!reference_results[i].is_populated) {
+                    reference_results[i] = b;
+                    reference_results[i].is_populated = true;
+                }
             }
 
             if (b.failed()) {
@@ -346,4 +367,32 @@ std::pair<double, double> Benchmark::parse_results(FILE* res) {
         }
     }
     return std::pair<double, double>(metrics[0] + metrics[1], metrics[2]);
+}
+
+float Architecture::vs_ref_crit_path() const {
+    float sum = 0;
+    for (unsigned i = 0; i < bench.size(); i++) {
+        // If reference value is not set, then there's no performance change
+        if (!reference_results[i].is_populated) {
+            return 1.0;
+        }
+
+        sum += static_cast<float>(bench[i].crit_path) / reference_results[i].crit_path;
+    }
+
+    return sum / bench.size();
+}
+
+float Architecture::vs_ref_area() const {
+    float sum = 0;
+    for (unsigned i = 0; i < bench.size(); i++) {
+        // If reference value is not set, then there's no performance change
+        if (!reference_results[i].is_populated) {
+            return 1.0;
+        }
+
+        sum += static_cast<float>(bench[i].area) / reference_results[i].area;
+    }
+
+    return sum / bench.size();
 }

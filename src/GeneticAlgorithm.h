@@ -34,6 +34,7 @@ public:
 
         Params(unsigned num_population,
                unsigned elites_preserve,
+               unsigned num_selection,
                float mutation_occurrence_rate,
                float mutation_amount,
                float crossover_occurrence_rate);
@@ -57,6 +58,8 @@ public:
         unsigned num_population;
         /* How many elites to preserve */
         unsigned elites_preserve;
+        /* How many to use as crossover/mutation pool */
+        unsigned num_selection;
         /* How often mutation happens */
         float mutation_occurrence_rate;
         /* How much change per mutation */
@@ -64,10 +67,6 @@ public:
         /* How often crossover happens */
         float crossover_occurrence_rate;
     };
-
-    // Comparators for sorting the results
-    static const Comparator SPEED_COMP;
-    static const Comparator AREA_COMP;
 
     /* Constructors, Destructor, and Assignment operators {{{ */
     // Default constructor
@@ -141,15 +140,16 @@ public:
     /**
      * Performs a crossover at the rate indicated by the parameters.
      * If a crossover is performed, a new architecture is created with traits
-     * from two randomly selected architectures. The new architecture is added
-     * to the new population list.
+     * from two randomly selected architectures in the new population. The new
+     * architecture is added to the new population list.
      */
     void crossover();
 
     /**
      * Performs mutation with probability given by the parameters.
-     * If a mutation is performed, a new architecture is created with a new
-     * set of architectural parameters and added to the new population.
+     * If a mutation is performed, a new architecture is created based on an
+     * architecture prepared for the next generation and is also added to the
+     * new population.
      */
     void mutate();
 
@@ -172,6 +172,11 @@ private:
     Params params;
     std::vector<Architecture> architectures;
     std::string vpr_path;
+
+    /**
+     * Architectures that will potentially be used for crossover and/on mutation.
+     */
+    std::vector<Architecture> selected;
 
     /**
      * The population for the next generation.
@@ -239,6 +244,14 @@ private:
      */
     template<typename T>
     std::pair<T, T> crossover_helper(const T& val1, const T& val2);
+
+    /**
+     * Sorts the `architectures' vector (the current population) according to
+     * the total performance gain observed among all benchmarks compared to
+     * reference values (the results from the first generation). No operation
+     * is done for the first generation.
+     */
+    void sort_population();
 };
 
 #endif /* end of include guard */
