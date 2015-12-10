@@ -93,6 +93,7 @@ GeneticAlgorithm::GeneticAlgorithm(const Params& params, const std::string& vpr_
     , vpr_path{vpr_path}
     , selected{}
     , next_generation{}
+    , weights{}
 {
     fill_random_population(architectures.begin(), architectures.end());
     for (Architecture& arch : architectures) {
