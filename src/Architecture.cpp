@@ -349,11 +349,28 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
                     W, seed);
             std::string command{command_vpr};
 
+#ifdef DEBUG
+#pragma omp critical(print)
+            {
+                std::cout << "Running " << b.benchmark << std::endl;
+                std::cout << "with parameters:" << std::endl;
+                std::cout << *this << std::endl;
+            }
+#endif
+
             // Run vpr
             FILE* res = popen(command.c_str(), "r");
 
             double res_area, res_crit;
             std::tie(res_area, res_crit) = b.parse_results(res);
+
+#ifdef DEBUG
+#pragma omp critical(print)
+            {
+                std::cout << "Finished running:" << std::endl;
+                std::cout << b.to_s() << std::endl;
+            }
+#endif
 
             // Finish process
             pclose(res);
