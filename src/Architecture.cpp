@@ -373,7 +373,6 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
         }
     }
     system(("rm -rf " + dir).c_str());
-    system("rm core.* 2>> /dev/null");
 }
 
 std::pair<double, double> Benchmark::parse_results(FILE* res) {
