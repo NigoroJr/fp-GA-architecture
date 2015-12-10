@@ -32,8 +32,8 @@ Architecture Architecture::random() {
 /* Constructors, Destructor, and Assignment operators {{{ */
 // Default constructor
 Benchmark::Benchmark()
-    : crit_path{UNSET}
-    , area{UNSET}
+    : crit_path{FAILED}
+    , area{FAILED}
     , benchmark{""}
     , is_populated{false}
 { }
@@ -56,8 +56,8 @@ Benchmark::Benchmark(Benchmark&& other)
 
 // Filename constructor
 Benchmark::Benchmark(const std::string& filename)
-    : crit_path{UNSET}
-    , area{UNSET}
+    : crit_path{FAILED}
+    , area{FAILED}
     , benchmark{filename}
     , is_populated{false}
 { }
