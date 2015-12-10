@@ -22,19 +22,3 @@ BOOST_AUTO_TEST_CASE(ga_change_generation_test) {
     bool different = before != after;
     BOOST_CHECK(different);
 }
-
-BOOST_AUTO_TEST_CASE(ga_crossover_test) {
-    GeneticAlgorithm ga1{GeneticAlgorithm::Params{2, 0, 1.0, 1.0, 1.0}, ""};
-
-    auto parent_best = ga1.get_best();
-    auto parent_worst = ga1.get_worst();
-
-    BOOST_CHECK_EQUAL(ga1.population().size(), 2);
-
-    ga1.crossover();
-    ga1.change_generation();
-
-    BOOST_CHECK_EQUAL(ga1.population().size(), 2);
-    BOOST_CHECK(ga1.get_best() != parent_best);
-    BOOST_CHECK(ga1.get_worst() != parent_worst);
-}
