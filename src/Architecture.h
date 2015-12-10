@@ -194,7 +194,7 @@ private:
     static std::uniform_int_distribution<unsigned> k_rgen;
     static std::uniform_int_distribution<unsigned> w_rgen;
     static std::uniform_int_distribution<unsigned> n_rgen;
-    
+
     /* Directory to hold related files */
     std::string dir;
 
