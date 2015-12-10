@@ -203,9 +203,18 @@ std::ostream& operator<<(std::ostream& os, const Architecture& a) {
         << "K (num inputs per LUT): " << a.K << std::endl;
     os << std::setw(30) << std::left
         << "N (num of LUTs per cluster): " << a.N << std::endl;
-    os << "with results:" << std::endl;
-    for (const Architecture::Benchmark& benchmark : a.bench) {
-        os << benchmark.to_s(2) << std::endl;
+
+    bool print_results = std::any_of(a.bench.begin(), a.bench.end(),
+                                     [](const Benchmark& b) {
+                                     return b.is_populated;
+                                     });
+    if (print_results) {
+        os << "with results:" << std::endl;
+        for (const Architecture::Benchmark& benchmark : a.bench) {
+            if (benchmark.is_populated) {
+                os << benchmark.to_s(2) << std::endl;
+            }
+        }
     }
 
     return os;
@@ -340,11 +349,28 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
                     W, seed);
             std::string command{command_vpr};
 
+#ifdef DEBUG
+#pragma omp critical(print)
+            {
+                std::cout << "Running " << b.benchmark << std::endl;
+                std::cout << "with parameters:" << std::endl;
+                std::cout << *this << std::endl;
+            }
+#endif
+
             // Run vpr
             FILE* res = popen(command.c_str(), "r");
 
             double res_area, res_crit;
             std::tie(res_area, res_crit) = b.parse_results(res);
+
+#ifdef DEBUG
+#pragma omp critical(print)
+            {
+                std::cout << "Finished running:" << std::endl;
+                std::cout << b.to_s() << std::endl;
+            }
+#endif
 
             // Finish process
             pclose(res);

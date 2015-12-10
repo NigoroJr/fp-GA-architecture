@@ -10,6 +10,7 @@ bool keep_going = true;
 
 void signal_handler(int sig) {
     std::cout << "Received signal " << sig << std::endl;
+    std::cout << "Waiting for VPR processes to finish" << std::endl;
     keep_going = false;
 }
 
@@ -75,6 +76,14 @@ int main(int argc, char* argv[]) {
         crossover_occurrence_rate
     };
     GeneticAlgorithm ga{params, vtr_path, benchmarks};
+
+#ifdef _OPENMP
+#pragma omp parallel
+#pragma omp master
+    std::cout << "Running program using "
+        << omp_get_num_threads() <<
+        " threads" << std::endl;
+#endif
 
     std::signal(SIGINT, signal_handler);
     unsigned cnt = 0;
