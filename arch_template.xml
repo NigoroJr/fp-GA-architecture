@@ -180,21 +180,21 @@ Architecture based off Stratix IV
 
 
       <pb_type name="clb">
-        <input name="I" num_pins=CLB_IN equivalent="true"/>
-        <output name="O" num_pins=TEMP_N equivalent="false"/>
+        <input name="I" num_pins= CLB_IN equivalent="true"/>
+        <output name="O" num_pins= TEMP_N equivalent="false"/>
         <clock name="clk" num_pins="1"/>
 
         <!-- Describe basic logic element, with ifar delay numbers -->
-        <pb_type name="ble" num_pb=TEMP_N >
-          <input name="in" num_pins=TEMP_K />
+        <pb_type name="ble" num_pb= TEMP_N >
+          <input name="in" num_pins= TEMP_K />
           <output name="out" num_pins="1"/>
           <clock name="clk" num_pins="1"/>
           <pb_type name="soft_logic" num_pb="1">
-            <input name="in" num_pins=TEMP_K />
+            <input name="in" num_pins= TEMP_K />
             <output name="out" num_pins="1"/>
             <mode name="n1_lut6">
               <pb_type name="lut6" blif_model=".names" num_pb="1" class="lut">
-                <input name="in" num_pins=TEMP_K port_class="lut_in"/>
+                <input name="in" num_pins= TEMP_K port_class="lut_in"/>
                 <output name="out" num_pins="1" port_class="lut_out"/>
 
                 <!-- LUT timing using delay matrix -->
@@ -640,13 +640,13 @@ Architecture based off Stratix IV
 
         <!-- Describe basic logic element, with ifar delay numbers -->
         <pb_type name="ble" num_pb="4">
-          <input name="in" num_pins=TEMP_K />
+          <input name="in" num_pins= TEMP_K />
           <input name="cin" num_pins="1"/>
           <output name="out" num_pins="1"/>
           <output name="cout" num_pins="1"/>
           <clock name="clk" num_pins="1"/>
           <pb_type name="alm" blif_model=".subckt alm" num_pb="1">
-            <input name="in" num_pins=TEMP_K />
+            <input name="in" num_pins= TEMP_K />
             <input name="cin" num_pins="1" chain="carry_chain_alm"/>
             <output name="out" num_pins="1"/>
             <output name="cout" num_pins="1" chain="carry_chain_alm"/>

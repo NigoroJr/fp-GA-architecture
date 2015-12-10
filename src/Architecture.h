@@ -1,6 +1,9 @@
 #ifndef ARCHITECTURE_H_
 #define ARCHITECTURE_H_
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -14,16 +17,13 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #define CRIT_PATH "Final critical path:"
 #define LOGIC_AREA "Total used logic block area:"
 #define ROUTE_AREA "Total routing area:"
 #define SCIENTIFIC_NOTATION "[-]?[0-9]+\\.[0-9]+([e][-+][0-9]+)"
 #define NUM_METRICS 3
-#define TEMP_K "num_pins=TEMP_K"
-#define TEMP_N "num_pb=TEMP_N"
-#define TEMP_N_ALT "num_pins=TEMP_N"
-#define CLB_IN "num_pins=CLB_IN"
 #define BENCH_ITER 1
 
 class Architecture {
@@ -141,7 +141,7 @@ public:
     std::string make_arch_file();
 
     /* Run each benchmark and store it in the benchmark object */
-    void run_benchmarks(const std::string& vpr_path);
+    void run_benchmarks(const std::string& vtr_path);
 
     /**
      * Changes the property of this architecture.
@@ -171,6 +171,9 @@ private:
     static std::uniform_int_distribution<unsigned> k_rgen;
     static std::uniform_int_distribution<unsigned> w_rgen;
     static std::uniform_int_distribution<unsigned> n_rgen;
+    
+    /* Directory to hold related files */
+    std::string dir;
 
     /* The architecture file that represents the architecture */
     std::string arch_file;

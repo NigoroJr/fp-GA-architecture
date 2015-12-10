@@ -84,11 +84,11 @@ GeneticAlgorithm::GeneticAlgorithm()
     : GeneticAlgorithm(Params{10, 1, 0.05, 0.05, 0.01}, "")
 { }
 
-GeneticAlgorithm::GeneticAlgorithm(const Params& params, const std::string& vpr_path,
+GeneticAlgorithm::GeneticAlgorithm(const Params& params, const std::string& vtr_path,
         const std::vector<Architecture::Benchmark>& benchmarks)
     : params{params}
     , architectures{params.num_population}
-    , vpr_path{vpr_path}
+    , vtr_path{vtr_path}
     , next_generation{}
 {
     fill_random_population(architectures.begin(), architectures.end());
@@ -119,7 +119,7 @@ GeneticAlgorithm::GeneticAlgorithm(const Params& params, const std::string& vpr_
 GeneticAlgorithm::GeneticAlgorithm(const GeneticAlgorithm& other)
     : params{other.params}
     , architectures{other.architectures}
-    , vpr_path{other.vpr_path}
+    , vtr_path{other.vtr_path}
     , next_generation{other.next_generation}
     , weights{other.weights}
 {
@@ -132,7 +132,7 @@ GeneticAlgorithm::GeneticAlgorithm(const GeneticAlgorithm& other)
 GeneticAlgorithm::GeneticAlgorithm(GeneticAlgorithm&& other)
     : params{std::move(other.params)}
     , architectures{std::move(other.architectures)}
-    , vpr_path{std::move(other.vpr_path)}
+    , vtr_path{std::move(other.vtr_path)}
     , next_generation{std::move(other.next_generation)}
     , weights{std::move(other.weights)}
     , biased_gen{std::move(other.biased_gen)}
@@ -147,7 +147,7 @@ GeneticAlgorithm& GeneticAlgorithm::operator=(const GeneticAlgorithm& other) {
     params = other.params;
     architectures = other.architectures;
     next_generation = other.next_generation;
-    vpr_path = other.vpr_path;
+    vtr_path = other.vtr_path;
     weights = other.weights;
     biased_gen = std::uniform_real_distribution<float>{
         0, static_cast<float>(weights.back())
@@ -160,7 +160,7 @@ GeneticAlgorithm& GeneticAlgorithm::operator=(GeneticAlgorithm&& other) {
     params = std::move(other.params);
     architectures = std::move(other.architectures);
     next_generation = std::move(other.next_generation);
-    vpr_path = std::move(other.vpr_path);
+    vtr_path = std::move(other.vtr_path);
     weights = std::move(other.weights);
     biased_gen = std::move(other.biased_gen);
     return *this;
@@ -197,7 +197,7 @@ void GeneticAlgorithm::evaluate() {
     for (unsigned i = 0; i < architectures.size(); i++) {
         std::string file_name = architectures[i].make_arch_file();
         // Populate the Architecture::Benchmark for each architecture
-        architectures[i].run_benchmarks(vpr_path);
+        architectures[i].run_benchmarks(vtr_path);
         std::remove(file_name.c_str());
     }
 }

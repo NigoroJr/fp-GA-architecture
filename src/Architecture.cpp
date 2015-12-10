@@ -207,6 +207,14 @@ std::ostream& operator<<(std::ostream& os, const Architecture& a) {
 }
 
 std::string Architecture::make_arch_file() {
+    char folder_buf[80];
+    std::sprintf(folder_buf,
+            "./%d_%d_%d",
+            K, N, W);
+#pragma omp critical
+    mkdir(folder_buf, 0700);
+    dir = std::string{folder_buf};
+
     // Construct delay matrix based on K
     std::string line, temp = "2.690e-10";
     for (size_t i = 0; i < K - 1; i++) {
@@ -216,17 +224,16 @@ std::string Architecture::make_arch_file() {
     // The unordered map that defined the parts of the template to replace and
     // with what
     std::unordered_map<std::string, std::string> temp_args = {
-        {TEMP_K, "num_pins=\"" + std::to_string(K) + "\" "},
+        {"TEMP_K", "\"" + std::to_string(K) + "\" "},
         {"TEMP_K_RANGE", std::to_string(K - 1) + ":0"},
         {"TEMP_DELAY", temp},
-        {TEMP_N, "num_pb=\"" + std::to_string(N) + "\""},
+        {"TEMP_N", "\"" + std::to_string(N) + "\" "},
         {"TEMP_N_RANGE", std::to_string(N - 1) + ":0"},
-        {TEMP_N_ALT, "num_pins=\"" + std::to_string(N) + "\" "},
-        {CLB_IN, "num_pins=\"" + std::to_string((K / 2) * (N + 1)) + "\" "}
+        {"CLB_IN", "\"" + std::to_string((K / 2) * (N + 1)) + "\" "}
     };
 
     char arch_file_buf[128];
-    std::sprintf(arch_file_buf, "%d_%d_%d.xml", K, N, W);
+    std::sprintf(arch_file_buf, "%s/%d_%d_%d.xml", dir.c_str(), K, N, W);
     arch_file = std::string{arch_file_buf};
     // Open the files we need to read and write
     std::ifstream is("../arch_template.xml");
@@ -249,7 +256,7 @@ std::string Architecture::make_arch_file() {
             }
             else {
                 os << temp;
-                if (temp.back() != '[') {
+                if (temp.back() != '[' && temp.back() != '=') {
                     os << " ";
                 }
             }
@@ -263,7 +270,14 @@ std::string Architecture::make_arch_file() {
     return arch_file;
 }
 
-void Architecture::run_benchmarks(const std::string& vpr_path) {
+inline std::string get_basename(const std::string& path) {
+    size_t start = path.rfind('/') + 1;
+    size_t len = path.rfind('.') - start;
+    return path.substr(start, len);
+}
+
+void Architecture::run_benchmarks(const std::string& vtr_path) {
+    std::string path;
     // Run each benchmark
     for (Benchmark& b : bench) {
         // Don't need to rerun VPR if already run
@@ -271,18 +285,45 @@ void Architecture::run_benchmarks(const std::string& vpr_path) {
             continue;
         }
 
+        path = dir + '/' + get_basename(b.get_filename());
+        mkdir(path.c_str(), 0700);
+        path += '/';
         // The command to give to popen
-        char command_buf[512];
-        std::sprintf(command_buf,
-                     "%s %s %s -route_chan_width %d",
-                     vpr_path.c_str(),
-                     arch_file.c_str(),
-                     b.get_filename().c_str(),
-                     W);
-        std::string command{command_buf};
+        char command_abc[512];
+        char command_vpr[512];
+        std::sprintf(command_abc,
+                "%svtr_flow/scripts/run_vtr_flow.pl %s %s -starting_stage abc -ending_stage abc -keep_intermediate_files -keep_result_files -temp_dir %s >> /dev/null",
+                vtr_path.c_str(),
+                b.get_filename().c_str(),
+                arch_file.c_str(),
+                path.c_str());
+        std::string command1{command_abc};
+#pragma omp critical
+        system(command_abc);
+
+        std::string new_blif = path + get_basename(b.get_filename()) + ".abc.blif";
+        if (access(new_blif.c_str(), F_OK) == -1) {
+            b.crit_path = Benchmark::FAILED;
+            b.area = Benchmark::FAILED;
+            continue;
+        }
 
         // Run the benchmark multiple times
         for (unsigned i = 0; i < BENCH_ITER; i++) {
+            int seed = rd();
+            if (seed < 0) {
+                seed = -1 * seed;
+            } else if (seed == 0) {
+                seed++;
+            }
+            std::sprintf(command_vpr,
+                    "%s/vpr/vpr %s %s -route_chan_width %d -seed %d",
+                    vtr_path.c_str(),
+                    arch_file.c_str(),
+                    new_blif.c_str(),
+                    W, seed);
+            std::string command{command_vpr};
+
             // Run vpr
             FILE* res = popen(command.c_str(), "r");
 
@@ -306,6 +347,8 @@ void Architecture::run_benchmarks(const std::string& vpr_path) {
             }
         }
     }
+    system(("rm -rf " + dir).c_str());
+    system("rm core.* 2>> /dev/null");
 }
 
 std::pair<double, double> Benchmark::parse_results(FILE* res) {
