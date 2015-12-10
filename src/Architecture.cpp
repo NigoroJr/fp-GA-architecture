@@ -346,6 +346,9 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
             double res_area, res_crit;
             std::tie(res_area, res_crit) = b.parse_results(res);
 
+            // Finish process
+            pclose(res);
+
             // Save the results of the benchmark
             if (b.is_populated) {
                 b.area = std::min(b.area, res_area);
