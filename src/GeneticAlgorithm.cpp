@@ -263,7 +263,7 @@ void GeneticAlgorithm::crossover() {
     // TODO: for each organism?
     if (trigger(params.crossover_occurrence_rate)) {
         Architecture a, b;
-        std::tie(a, b) = get_two_architectures();
+        std::tie(a, b) = get_two_random(next_generation);
         Architecture child1, child2;
         std::tie(child1.K, child2.K) = crossover_helper(a.K, b.K);
         std::tie(child1.N, child2.N) = crossover_helper(a.N, b.N);
@@ -315,14 +315,15 @@ bool GeneticAlgorithm::trigger(const float probability) {
     return prob_gen(gen) <= probability;
 }
 
-std::pair<Architecture, Architecture> GeneticAlgorithm::get_two_architectures() {
-    unsigned a = gen() % architectures.size();
+template<typename T>
+std::pair<T, T> GeneticAlgorithm::get_two_random(const std::vector<T>& vec) {
+    unsigned a = gen() % vec.size();
     unsigned b;
     do {
-        b = gen() % architectures.size();
+        b = gen() % vec.size();
     } while (a == b);
 
-    return std::make_pair(architectures[a], architectures[b]);
+    return std::make_pair(vec[a], vec[b]);
 }
 
 unsigned GeneticAlgorithm::get_biased_index(const unsigned offset) {

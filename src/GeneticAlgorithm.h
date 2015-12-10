@@ -211,11 +211,12 @@ private:
     bool trigger(const float probability);
 
     /**
-     * Randomly selects two distinct architectures.
+     * Randomly selects two elements with different indices.
      *
-     * \return two distinct architectures.
+     * \return pair of two elements with different indices.
      */
-    std::pair<Architecture, Architecture> get_two_architectures();
+    template<typename T>
+    std::pair<T, T> get_two_random(const std::vector<T>& vec);
 
     /**
      * Generates a biased index in the range [offset, architectures.size()).
