@@ -79,6 +79,7 @@ Params& Params::operator=(Params&& other) {
 // Default constructor
 GeneticAlgorithm::GeneticAlgorithm()
     : params{}
+    , benchmarks{}
     , architectures{}
     , vtr_path{}
     , selected{}
@@ -89,6 +90,7 @@ GeneticAlgorithm::GeneticAlgorithm()
 GeneticAlgorithm::GeneticAlgorithm(const Params& params, const std::string& vtr_path,
         const std::vector<Architecture::Benchmark>& benchmarks)
     : params{params}
+    , benchmarks{benchmarks}
     , architectures{params.num_population}
     , vtr_path{vtr_path}
     , selected{}
@@ -122,6 +124,7 @@ GeneticAlgorithm::GeneticAlgorithm(const Params& params, const std::string& vtr_
 // Copy constructor
 GeneticAlgorithm::GeneticAlgorithm(const GeneticAlgorithm& other)
     : params{other.params}
+    , benchmarks{other.benchmarks}
     , architectures{other.architectures}
     , vtr_path{other.vtr_path}
     , selected{other.selected}
@@ -136,6 +139,7 @@ GeneticAlgorithm::GeneticAlgorithm(const GeneticAlgorithm& other)
 // Move constructor
 GeneticAlgorithm::GeneticAlgorithm(GeneticAlgorithm&& other)
     : params{std::move(other.params)}
+    , benchmarks{std::move(other.benchmarks)}
     , architectures{std::move(other.architectures)}
     , vtr_path{std::move(other.vtr_path)}
     , selected{std::move(other.selected)}
@@ -151,6 +155,7 @@ GeneticAlgorithm::~GeneticAlgorithm()
 // Assignment operator
 GeneticAlgorithm& GeneticAlgorithm::operator=(const GeneticAlgorithm& other) {
     params = other.params;
+    benchmarks = other.benchmarks;
     architectures = other.architectures;
     next_generation = other.next_generation;
     vtr_path = other.vtr_path;
@@ -165,6 +170,7 @@ GeneticAlgorithm& GeneticAlgorithm::operator=(const GeneticAlgorithm& other) {
 // Move assignment operator
 GeneticAlgorithm& GeneticAlgorithm::operator=(GeneticAlgorithm&& other) {
     params = std::move(other.params);
+    benchmarks = std::move(other.benchmarks);
     architectures = std::move(other.architectures);
     next_generation = std::move(other.next_generation);
     vtr_path = std::move(other.vtr_path);
@@ -249,7 +255,9 @@ void GeneticAlgorithm::crossover() {
     if (trigger(params.crossover_occurrence_rate)) {
         Architecture a, b;
         std::tie(a, b) = get_two_random(selected);
-        Architecture child1, child2;
+        Architecture child1{benchmarks};
+        Architecture child2{benchmarks};
+
         std::tie(child1.K, child2.K) = crossover_helper(a.K, b.K);
         std::tie(child1.N, child2.N) = crossover_helper(a.N, b.N);
         std::tie(child1.W, child2.W) = crossover_helper(a.W, b.W);
@@ -267,6 +275,7 @@ void GeneticAlgorithm::mutate() {
         if (trigger(params.mutation_occurrence_rate)) {
             Architecture mutant{arch};
             mutant.mutate(params.mutation_amount);
+            mutant.bench = benchmarks;
 
             next_generation.push_back(std::move(mutant));
         }

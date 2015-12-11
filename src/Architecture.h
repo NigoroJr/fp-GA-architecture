@@ -97,6 +97,8 @@ public:
     // Default constructor
     Architecture();
 
+    Architecture(const std::vector<Benchmark>& bench);
+
     // Copy constructor
     Architecture(const Architecture& other);
 

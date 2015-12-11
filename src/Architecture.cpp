@@ -110,6 +110,15 @@ Architecture::Architecture()
     , arch_file{}
 { }
 
+Architecture::Architecture(const std::vector<Benchmark>& bench)
+    : K{UNSET}
+    , N{UNSET}
+    , W{UNSET}
+    , bench{bench}
+    , reference_results{}
+    , arch_file{}
+{ }
+
 // Copy constructor
 Architecture::Architecture(const Architecture& other)
     : K{other.K}
@@ -165,12 +174,6 @@ void Architecture::mutate(const float amount) {
     W = static_cast<decltype(W)>(w_dist(gen));
     W = W % 2 == 0 ? W : W + 1;
     N = static_cast<decltype(N)>(n_dist(gen));
-
-    // Reset results
-    for (Benchmark& b : bench) {
-        // Reinitialize with the same benchmark file name
-        b = Benchmark{b.benchmark};
-    }
 }
 
 bool Architecture::operator==(const Architecture& other) const {

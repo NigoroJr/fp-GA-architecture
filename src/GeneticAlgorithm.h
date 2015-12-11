@@ -170,6 +170,7 @@ private:
     static std::uniform_real_distribution<float> prob_gen;
 
     Params params;
+    std::vector<Architecture::Benchmark> benchmarks;
     std::vector<Architecture> architectures;
     std::string vtr_path;
 
