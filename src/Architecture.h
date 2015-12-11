@@ -132,14 +132,6 @@ public:
     /* The results used as a reference to measure performance gain */
     std::vector<Benchmark> reference_results;
 
-    /**
-     * Used for determining whether an architecture is better or worse than
-     * another architecture.
-     * The lower the penalty the better (more superior) an architecture.
-     */
-    unsigned speed_penalty;
-    unsigned area_penalty;
-
     /* Member methods */
 
     /* Constructs the architecture file */
@@ -187,18 +179,6 @@ public:
 
     bool operator==(const Architecture& other) const;
     bool operator!=(const Architecture& other) const;
-
-    /**
-     * \return true if this architecture is better (i.e. has lower penalty
-     *         value) than the other architecture.
-     */
-    bool operator>(const Architecture& other) const;
-
-    /**
-     * \return true if this architecture is worse (i.e. has higher penalty
-     *         value) than the other architecture.
-     */
-    bool operator<(const Architecture& other) const;
 
 private:
     static std::random_device rd;

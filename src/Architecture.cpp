@@ -107,8 +107,6 @@ Architecture::Architecture()
     , W{UNSET}
     , bench{}
     , reference_results{}
-    , speed_penalty{0}
-    , area_penalty{0}
     , arch_file{}
 { }
 
@@ -119,8 +117,6 @@ Architecture::Architecture(const Architecture& other)
     , W{other.W}
     , bench{other.bench}
     , reference_results{other.reference_results}
-    , speed_penalty{other.speed_penalty}
-    , area_penalty{other.area_penalty}
     , arch_file{other.arch_file}
 { }
 
@@ -131,8 +127,6 @@ Architecture::Architecture(Architecture&& other)
     , W{std::move(other.W)}
     , bench{std::move(other.bench)}
     , reference_results{std::move(other.reference_results)}
-    , speed_penalty{std::move(other.speed_penalty)}
-    , area_penalty{std::move(other.area_penalty)}
     , arch_file{std::move(other.arch_file)}
 { }
 
@@ -147,8 +141,6 @@ Architecture& Architecture::operator=(const Architecture& other) {
     W = other.W;
     bench = other.bench;
     reference_results = other.reference_results;
-    speed_penalty = other.speed_penalty;
-    area_penalty = other.area_penalty;
     arch_file = other.arch_file;
     return *this;
 }
@@ -160,8 +152,6 @@ Architecture& Architecture::operator=(Architecture&& other) {
     W = std::move(other.W);
     bench = std::move(other.bench);
     reference_results = std::move(other.reference_results);
-    speed_penalty = std::move(other.speed_penalty);
-    area_penalty = std::move(other.area_penalty);
     arch_file = std::move(other.arch_file);
     return *this;
 }
@@ -193,14 +183,6 @@ bool Architecture::operator!=(const Architecture& other) const {
     return K != other.K
         || N != other.N
         || W != other.W;
-}
-
-bool Architecture::operator>(const Architecture& other) const {
-    return speed_penalty + area_penalty < other.speed_penalty + other.area_penalty;
-}
-
-bool Architecture::operator<(const Architecture& other) const {
-    return speed_penalty + area_penalty > other.speed_penalty + other.area_penalty;
 }
 
 std::ostream& operator<<(std::ostream& os, const Architecture& a) {
