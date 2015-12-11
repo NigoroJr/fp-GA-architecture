@@ -163,12 +163,12 @@ public:
      *
      * \return the average ratio of the benchmarks compared to the reference
      */
-    float vs_ref_crit_path() const;
+    double vs_ref_crit_path() const;
 
     /**
      * Same as vs_ref_crit_path but for area.
      */
-    float vs_ref_area() const;
+    double vs_ref_area() const;
 
     /**
      * \return true if all benchmarks have been run already.

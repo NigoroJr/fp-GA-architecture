@@ -435,29 +435,29 @@ std::pair<double, double> Benchmark::parse_results(const std::shared_ptr<FILE>& 
     return std::pair<double, double>(metrics[0] + metrics[1], metrics[2]);
 }
 
-float Architecture::vs_ref_crit_path() const {
-    float sum = 0;
+double Architecture::vs_ref_crit_path() const {
+    double sum = 0;
     for (unsigned i = 0; i < bench.size(); i++) {
         // If reference value is not set, then there's no performance change
         if (!reference_results[i].is_populated) {
             return 1.0;
         }
 
-        sum += static_cast<float>(bench[i].crit_path) / reference_results[i].crit_path;
+        sum += bench[i].crit_path / reference_results[i].crit_path;
     }
 
     return sum / bench.size();
 }
 
-float Architecture::vs_ref_area() const {
-    float sum = 0;
+double Architecture::vs_ref_area() const {
+    double sum = 0;
     for (unsigned i = 0; i < bench.size(); i++) {
         // If reference value is not set, then there's no performance change
         if (!reference_results[i].is_populated) {
             return 1.0;
         }
 
-        sum += static_cast<float>(bench[i].area) / reference_results[i].area;
+        sum += bench[i].area / reference_results[i].area;
     }
 
     return sum / bench.size();
