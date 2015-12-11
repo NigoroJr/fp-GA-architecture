@@ -300,16 +300,16 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
                       []() { return Benchmark(); });
     }
 
+    // Don't need to rerun flow
+    if (already_run()) {
+        return;
+    }
+
     std::string path;
 
     // Run each benchmark
     for (unsigned i = 0; i < bench.size(); i++) {
         Benchmark& b = bench[i];
-        // Don't need to rerun VPR if already run
-        if (b.is_populated) {
-            continue;
-        }
-
         path = dir + '/' + get_basename(b.get_filename());
         mkdir(path.c_str(), 0700);
         path += '/';
@@ -336,6 +336,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
         if (access(new_blif.c_str(), F_OK) == -1) {
             b.crit_path = Benchmark::FAILED;
             b.area = Benchmark::FAILED;
+            b.is_populated = true;
             continue;
         }
 
@@ -474,6 +475,12 @@ float Architecture::vs_ref_area() const {
     }
 
     return sum / bench.size();
+}
+
+bool Architecture::already_run() const {
+    return std::all_of(bench.begin(), bench.end(), [](const Benchmark& b) {
+                       return b.is_populated;
+                       });
 }
 
 bool Architecture::non_failed() const {

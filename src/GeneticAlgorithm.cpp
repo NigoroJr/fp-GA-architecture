@@ -206,10 +206,12 @@ const Params& GeneticAlgorithm::parameters() const {
 void GeneticAlgorithm::evaluate() {
 #pragma omp parallel for
     for (unsigned i = 0; i < architectures.size(); i++) {
-        std::string file_name = architectures[i].make_arch_file();
-        // Populate the Architecture::Benchmark for each architecture
-        architectures[i].run_benchmarks(vtr_path);
-        std::remove(file_name.c_str());
+        if (!architectures[i].already_run()) {
+            std::string file_name = architectures[i].make_arch_file();
+            // Populate the Architecture::Benchmark for each architecture
+            architectures[i].run_benchmarks(vtr_path);
+            std::remove(file_name.c_str());
+        }
     }
 }
 

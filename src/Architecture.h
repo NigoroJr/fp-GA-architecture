@@ -176,6 +176,11 @@ public:
     float vs_ref_area() const;
 
     /**
+     * \return true if all benchmarks have been run already.
+     */
+    bool already_run() const;
+
+    /**
      * \return true if NONE of the benchmarks failed.
      */
     bool non_failed() const;
