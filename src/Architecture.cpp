@@ -317,12 +317,19 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
         char command_abc[512];
         char command_vpr[512];
         std::sprintf(command_abc,
-                "%svtr_flow/scripts/run_vtr_flow.pl %s %s -starting_stage abc -ending_stage abc -keep_intermediate_files -keep_result_files -temp_dir %s >> /dev/null",
+                "%svtr_flow/scripts/run_vtr_flow.pl %s %s " \
+                "-starting_stage abc -ending_stage abc -keep_intermediate_files " \
+                "-keep_result_files -temp_dir %s 1>/dev/null 2>&1",
                 vtr_path.c_str(),
                 b.get_filename().c_str(),
                 arch_file.c_str(),
                 path.c_str());
-        std::string command1{command_abc};
+
+#ifdef DEBUG
+#pragma omp critical(print)
+        std::cout << "Running ABC with: " << command_abc << std::endl;
+#endif
+
 #pragma omp critical
         system(command_abc);
 
@@ -355,6 +362,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
                 std::cout << "Running " << b.benchmark << std::endl;
                 std::cout << "with parameters:" << std::endl;
                 std::cout << *this << std::endl;
+                std::cout << command << std::endl;
             }
 #endif
 
@@ -368,7 +376,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
 #pragma omp critical(print)
             {
                 std::cout << "Finished running:" << std::endl;
-                std::cout << b.to_s() << std::endl;
+                std::cout << *this << std::endl;
             }
 #endif
 
