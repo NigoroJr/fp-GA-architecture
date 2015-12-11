@@ -223,7 +223,16 @@ void GeneticAlgorithm::select() {
 
     // Select what to crossever/mutate from
     for (unsigned i = 0; i < params.num_selection; i++) {
-        selected.push_back(architectures[get_biased_index()]);
+        Architecture& arch = architectures[get_biased_index()];
+        bool already_exists = false;
+        do {
+            arch = architectures[get_biased_index()];
+            already_exists = std::find(selected.begin(),
+                                       selected.end(),
+                                       arch) != selected.end();
+        } while (already_exists);
+
+        selected.push_back(arch);
     }
 }
 
