@@ -174,6 +174,12 @@ void Architecture::mutate(const float amount) {
     K = static_cast<decltype(K)>(k_dist(gen));
     W = static_cast<decltype(W)>(w_dist(gen));
     N = static_cast<decltype(N)>(n_dist(gen));
+
+    // Reset results
+    for (Benchmark& b : bench) {
+        // Reinitialize with the same benchmark file name
+        b = Benchmark{b.benchmark};
+    }
 }
 
 bool Architecture::operator==(const Architecture& other) const {
