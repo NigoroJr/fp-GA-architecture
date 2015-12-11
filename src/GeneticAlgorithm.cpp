@@ -281,7 +281,8 @@ void GeneticAlgorithm::change_generation() {
     }
 
     // If there's not enough population, randomly generate some
-    for (unsigned i = 0; i < num_pop - next_generation.size(); i++) {
+    unsigned lim = num_pop - next_generation.size();
+    for (unsigned i = 0; i < lim; i++) {
         next_generation.push_back(Architecture::random());
     }
 
