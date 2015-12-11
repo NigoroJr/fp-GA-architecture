@@ -126,5 +126,9 @@ int main(int argc, char* argv[]) {
         cnt++;
     }
 
+    if (output_csv) {
+        std::cerr << ga.get_best() << std::endl;
+    }
+
     return 0;
 }

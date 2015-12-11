@@ -339,7 +339,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
                 seed++;
             }
             std::sprintf(command_vpr,
-                    "%s/vpr/vpr %s %s -route_chan_width %d -seed %d",
+                    "%s/vpr/vpr %s %s -route_chan_width %d -seed %d 2>/dev/null",
                     vtr_path.c_str(),
                     arch_file.c_str(),
                     new_blif.c_str(),
@@ -392,7 +392,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
     }
 
 #pragma omp critical(filesystem)
-    system(("rm -rf " + dir).c_str());
+    system(("rm -rf " + dir + " 2>/dev/null").c_str());
 }
 
 std::pair<double, double> Benchmark::parse_results(const std::shared_ptr<FILE>& res) {
