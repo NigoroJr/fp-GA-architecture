@@ -202,14 +202,14 @@ std::ostream& operator<<(std::ostream& os, const Architecture& a) {
     os << std::setw(30) << std::left
         << "K (num inputs per LUT): " << a.K << std::endl;
     os << std::setw(30) << std::left
-        << "N (num of LUTs per cluster): " << a.N << std::endl;
+        << "N (num of LUTs per cluster): " << a.N;
 
     bool print_results = std::any_of(a.bench.begin(), a.bench.end(),
                                      [](const Benchmark& b) {
                                      return b.is_populated;
                                      });
     if (print_results) {
-        os << "with results:" << std::endl;
+        os << std::endl << "with results:" << std::endl;
         for (const Architecture::Benchmark& benchmark : a.bench) {
             if (benchmark.is_populated) {
                 os << benchmark.to_s(2) << std::endl;
