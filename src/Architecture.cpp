@@ -371,14 +371,6 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
             double res_area, res_crit;
             std::tie(res_area, res_crit) = b.parse_results(res);
 
-#ifdef DEBUG
-#pragma omp critical(print)
-            {
-                std::cout << "Finished running:" << std::endl;
-                std::cout << *this << std::endl;
-            }
-#endif
-
             // Finish process
             pclose(res);
 
@@ -399,6 +391,14 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
                     reference_results[i].is_populated = true;
                 }
             }
+
+#ifdef DEBUG
+#pragma omp critical(print)
+            {
+                std::cout << "Finished running:" << std::endl;
+                std::cout << *this << std::endl;
+            }
+#endif
 
             if (b.failed()) {
                 break;
