@@ -331,7 +331,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
         }
 
         // Run the benchmark multiple times
-        for (unsigned i = 0; i < BENCH_ITER; i++) {
+        for (unsigned j = 0; j < BENCH_ITER; j++) {
             int seed = rd();
             if (seed < 0) {
                 seed = -1 * seed;
