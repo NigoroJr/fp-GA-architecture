@@ -360,8 +360,6 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
 #pragma omp critical(print)
             {
                 std::cout << "Running " << b.benchmark << std::endl;
-                std::cout << "with parameters:" << std::endl;
-                std::cout << *this << std::endl;
                 std::cout << command << std::endl;
             }
 #endif
