@@ -14,6 +14,8 @@ u_dist_t Architecture::k_rgen{K_RANGE.first, K_RANGE.second};
 u_dist_t Architecture::w_rgen{W_RANGE.first, W_RANGE.second};
 u_dist_t Architecture::n_rgen{N_RANGE.first, N_RANGE.second};
 
+std::vector<Benchmark> Architecture::reference_results = {};
+
 const double Benchmark::FAILED = -1;
 
 /* Static methods */
@@ -107,7 +109,6 @@ Architecture::Architecture()
     , N{UNSET}
     , W{UNSET}
     , bench{}
-    , reference_results{}
     , arch_file{}
 { }
 
@@ -116,7 +117,6 @@ Architecture::Architecture(const std::vector<Benchmark>& bench)
     , N{UNSET}
     , W{UNSET}
     , bench{bench}
-    , reference_results{}
     , arch_file{}
 { }
 
@@ -126,7 +126,6 @@ Architecture::Architecture(const Architecture& other)
     , N{other.N}
     , W{other.W}
     , bench{other.bench}
-    , reference_results{other.reference_results}
     , arch_file{other.arch_file}
 { }
 
@@ -136,7 +135,6 @@ Architecture::Architecture(Architecture&& other)
     , N{std::move(other.N)}
     , W{std::move(other.W)}
     , bench{std::move(other.bench)}
-    , reference_results{std::move(other.reference_results)}
     , arch_file{std::move(other.arch_file)}
 { }
 
@@ -150,7 +148,6 @@ Architecture& Architecture::operator=(const Architecture& other) {
     N = other.N;
     W = other.W;
     bench = other.bench;
-    reference_results = other.reference_results;
     arch_file = other.arch_file;
     return *this;
 }
@@ -161,7 +158,6 @@ Architecture& Architecture::operator=(Architecture&& other) {
     N = std::move(other.N);
     W = std::move(other.W);
     bench = std::move(other.bench);
-    reference_results = std::move(other.reference_results);
     arch_file = std::move(other.arch_file);
     return *this;
 }
@@ -369,12 +365,6 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
                 b.area = res_area;
                 b.crit_path = res_crit;
                 b.is_populated = true;
-            }
-
-            // Save as reference values
-            if (!reference_results[i].is_populated && !b.failed()) {
-                reference_results[i] = b;
-                reference_results[i].is_populated = true;
             }
 
 #ifdef DEBUG

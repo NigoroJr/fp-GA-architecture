@@ -200,6 +200,16 @@ void GeneticAlgorithm::run_generation() {
 
     unsigned lim = std::min(params.elites_preserve,
                             static_cast<unsigned>(architectures.size()));
+
+    // Use best of the first generation as reference point
+    for (unsigned i = 0; i < get_best().bench.size(); i++) {
+        // Save as reference values
+        if (!Architecture::reference_results[i].is_populated) {
+            Architecture::reference_results[i] = get_best().bench[i];
+            Architecture::reference_results[i].is_populated = true;
+        }
+    }
+
     // Copy the elites
     sort_population();
     std::copy(architectures.begin(),

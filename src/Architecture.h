@@ -89,6 +89,9 @@ public:
     static const std::pair<unsigned, unsigned> N_RANGE;
     static const std::pair<unsigned, unsigned> W_RANGE;
 
+    /* The results used as a reference to measure performance gain */
+    static std::vector<Benchmark> reference_results;
+
     /**
      * \return a randomly generated architecture.
      */
@@ -131,9 +134,6 @@ public:
 
     /* All benchmarks to test with */
     std::vector<Benchmark> bench;
-
-    /* The results used as a reference to measure performance gain */
-    std::vector<Benchmark> reference_results;
 
     /* Member methods */
 
