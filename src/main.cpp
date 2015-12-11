@@ -17,6 +17,7 @@ void signal_handler(int sig) {
 int main(int argc, char* argv[]) {
     // Set default values
     unsigned interval = 50;
+    unsigned gen_limit = 100;
     unsigned num_population = 10;
     unsigned elites_preserve = 2;
     unsigned num_selection = 5;
@@ -32,6 +33,8 @@ int main(int argc, char* argv[]) {
          cxxopts::value(num_population))
         ("i,interval", "Interval to print the intermediate results",
          cxxopts::value(interval))
+        ("g,generations", "Number of generations",
+         cxxopts::value(gen_limit))
         ("e,elites", "Number of elites to preserve",
          cxxopts::value(elites_preserve))
         ("s,selection", "Number of architectures to crossover/mutate from",
@@ -95,6 +98,11 @@ int main(int argc, char* argv[]) {
             std::cout << ga.get_best() << std::endl;
             // TODO: get mean, get worst
         }
+
+        if (cnt == gen_limit) {
+            break;
+        }
+
         cnt++;
     }
 
