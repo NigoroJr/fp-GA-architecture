@@ -204,7 +204,7 @@ const Params& GeneticAlgorithm::parameters() const {
 }
 
 void GeneticAlgorithm::evaluate() {
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
     for (unsigned i = 0; i < architectures.size(); i++) {
         if (!architectures[i].already_run()) {
             std::string file_name = architectures[i].make_arch_file();
