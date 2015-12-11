@@ -355,13 +355,10 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
 #endif
 
             // Run vpr
-            FILE* res = popen(command.c_str(), "r");
+            std::shared_ptr<FILE> res{popen(command.c_str(), "r"), pclose};
 
             double res_area, res_crit;
             std::tie(res_area, res_crit) = b.parse_results(res);
-
-            // Finish process
-            pclose(res);
 
             // Save the results of the benchmark
             if (b.is_populated) {
@@ -398,7 +395,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
     system(("rm -rf " + dir).c_str());
 }
 
-std::pair<double, double> Benchmark::parse_results(FILE* res) {
+std::pair<double, double> Benchmark::parse_results(const std::shared_ptr<FILE>& res) {
     double metrics[NUM_METRICS];
     std::regex reg[NUM_METRICS] = {std::regex(LOGIC_AREA),
         std::regex(ROUTE_AREA), std::regex(CRIT_PATH)};
@@ -408,7 +405,7 @@ std::pair<double, double> Benchmark::parse_results(FILE* res) {
     // Search stream until all metrics are found
     for (size_t i = 0; i < NUM_METRICS;) {
         // If you get to end of stream, output failure
-        if (!fgets(line, 256, res)) {
+        if (!fgets(line, 256, res.get())) {
             return std::pair<double, double>(FAILED, FAILED);
         }
         // If the stat we are looking for is found, parse the line

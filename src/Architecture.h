@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
+#include <memory>
 #include <ostream>
 #include <random>
 #include <regex>
@@ -62,7 +63,7 @@ public:
          *         units and second representing critical path in ns. Returns
          *         pair (FAILED, FAILED) if all metrics are not found.
          */
-        std::pair<double, double> parse_results(FILE* res);
+        std::pair<double, double> parse_results(const std::shared_ptr<FILE>& res);
 
         double get_crit_path() const;
         double get_area() const;
