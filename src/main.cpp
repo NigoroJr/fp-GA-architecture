@@ -88,6 +88,7 @@ int main(int argc, char* argv[]) {
     std::signal(SIGINT, signal_handler);
     unsigned cnt = 0;
     while (keep_going) {
+        std::cout << "Running gen " << cnt << std::endl;
         ga.run_generation();
 
         if (cnt % interval == 0) {
