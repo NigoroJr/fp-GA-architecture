@@ -91,7 +91,7 @@ std::string Benchmark::to_s(unsigned indent) const {
     // Whitespace for indentation
     auto indent_str = std::string(indent, ' ');
 
-    os << benchmark << std::endl;
+    os << indent_str << benchmark << std::endl;
     os << indent_str << "  " << std::setw(13) << std::left
         << "Crit. Path:" << crit_path << std::endl;
     os << indent_str << "  " << std::setw(13) << std::left
