@@ -300,6 +300,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
     for (unsigned i = 0; i < bench.size(); i++) {
         Benchmark& b = bench[i];
         path = dir + '/' + get_basename(b.get_filename());
+#pragma omp critical(filesystem)
         mkdir(path.c_str(), 0700);
         path += '/';
         // The command to give to popen
@@ -392,6 +393,8 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
             }
         }
     }
+
+#pragma omp critical(filesystem)
     system(("rm -rf " + dir).c_str());
 }
 
