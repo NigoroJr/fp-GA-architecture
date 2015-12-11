@@ -378,17 +378,16 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
                 b.area = std::min(b.area, res_area);
                 b.crit_path = std::min(b.crit_path, res_crit);
             }
-            else if (!b.failed()) {
-                b.area = res_area;
-                b.crit_path = res_crit;
 
-                b.is_populated = true;
+            b.area = res_area;
+            b.crit_path = res_crit;
 
-                // Save as reference values
-                if (!reference_results[i].is_populated) {
-                    reference_results[i] = b;
-                    reference_results[i].is_populated = true;
-                }
+            b.is_populated = true;
+
+            // Save as reference values
+            if (!reference_results[i].is_populated) {
+                reference_results[i] = b;
+                reference_results[i].is_populated = true;
             }
 
 #ifdef DEBUG
