@@ -255,7 +255,7 @@ void GeneticAlgorithm::crossover() {
         std::tie(child1.W, child2.W) = crossover_helper(a.W, b.W);
         // Routing channel width must be even for unidirectional
         child1.W = child1.W % 2 == 0 ? child1.W : child1.W + 1;
-        child2.W = child2.W % 2 == 0 ? child2.W : child2.W + 2;
+        child2.W = child2.W % 2 == 0 ? child2.W : child2.W + 1;
 
         next_generation.push_back(std::move(child1));
         next_generation.push_back(std::move(child2));

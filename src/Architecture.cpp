@@ -173,6 +173,7 @@ void Architecture::mutate(const float amount) {
     std::normal_distribution<float> n_dist(N, N * amount);
     K = static_cast<decltype(K)>(k_dist(gen));
     W = static_cast<decltype(W)>(w_dist(gen));
+    W = W % 2 == 0 ? W : W + 1;
     N = static_cast<decltype(N)>(n_dist(gen));
 
     // Reset results
