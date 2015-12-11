@@ -101,15 +101,15 @@ GeneticAlgorithm::GeneticAlgorithm(const Params& params, const std::string& vtr_
     }
 
     // Make weights for roulette selection
-    weights.resize(architectures.size() - params.elites_preserve - 1);
+    weights.resize(architectures.size());
 
     if (weights.empty()) {
         return;
     }
 
-    // When weights.size() == 3 (thus, has 4 indices to choose from)
+    // When weights.size() == 4
     // |------ 0 ------|--- 1 ---|- 2 -|-3->
-    // 0               3         5     6
+    // 4               7         9     10
     weights[0] = weights.size();
     for (unsigned i = 1; i < weights.size(); i++) {
         weights[i] = weights[i - 1] + weights.size() - i;
@@ -223,7 +223,7 @@ void GeneticAlgorithm::select() {
               architectures.begin() + params.elites_preserve,
               std::back_inserter(next_generation));
 
-    // However many architectures that have results populated
+    // However many architectures that have successful results
     unsigned successes = std::count_if(architectures.begin(),
                                        architectures.end(),
                                        [] (const Architecture& a) {
@@ -231,17 +231,17 @@ void GeneticAlgorithm::select() {
                                        });
     unsigned lim = std::min(params.num_selection, successes);
     // Select what to crossever/mutate from
-    for (unsigned i = 0; i < lim; i++) {
+    unsigned cnt = 0;
+    while (cnt < lim) {
         Architecture& arch = architectures[get_biased_index()];
-        bool already_exists = false;
-        do {
-            arch = architectures[get_biased_index()];
-            already_exists = std::find(selected.begin(),
-                                       selected.end(),
-                                       arch) != selected.end();
-        } while (already_exists);
 
-        selected.push_back(arch);
+        // Same architecture shouldn't be selected more than once
+        if (arch.non_failed() && std::count(selected.begin(),
+                                            selected.end(),
+                                            arch) == 0) {
+            selected.push_back(arch);
+            cnt++;
+        }
     }
 }
 
@@ -314,7 +314,7 @@ std::pair<T, T> GeneticAlgorithm::get_two_random(const std::vector<T>& vec) {
 unsigned GeneticAlgorithm::get_biased_index(const unsigned offset) {
     float rnd_number = biased_gen(gen);
     for (unsigned i = 0; i < weights.size(); i++) {
-        if (rnd_number > weights[i]) {
+        if (weights[i] > rnd_number) {
             return offset + i;
         }
     }
