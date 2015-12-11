@@ -292,7 +292,7 @@ void GeneticAlgorithm::change_generation() {
     // If there's not enough population, randomly generate some
     unsigned lim = num_pop - next_generation.size();
     for (unsigned i = 0; i < lim; i++) {
-        next_generation.push_back(Architecture::random());
+        next_generation.push_back(Architecture::random(benchmarks));
     }
 
     architectures = next_generation;
@@ -303,7 +303,9 @@ void GeneticAlgorithm::change_generation() {
 template<typename ForwardIter>
 void GeneticAlgorithm::fill_random_population(const ForwardIter& begin,
                                               const ForwardIter& end) {
-    std::generate(begin, end, [](){ return Architecture::random(); });
+    std::generate(begin, end, [this](){
+                  return Architecture::random(benchmarks);
+                  });
 }
 
 bool GeneticAlgorithm::trigger(const float probability) {

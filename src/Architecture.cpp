@@ -18,17 +18,6 @@ const double Benchmark::FAILED = -1;
 
 /* Static methods */
 
-Architecture Architecture::random() {
-    Architecture arch;
-    arch.K = k_rgen(gen);
-    arch.N = n_rgen(gen);
-    arch.W = w_rgen(gen);
-    // Routing channel width must be even for unidirectional
-    arch.W = arch.W % 2 == 0 ? arch.W : arch.W + 1;
-
-    return arch;
-}
-
 /* Constructors, Destructor, and Assignment operators {{{ */
 // Default constructor
 Benchmark::Benchmark()
@@ -84,6 +73,18 @@ Benchmark& Benchmark::operator=(Benchmark&& other) {
     return *this;
 }
 /* }}} */
+
+Architecture Architecture::random(const std::vector<Benchmark>& benchmarks) {
+    Architecture arch;
+    arch.K = k_rgen(gen);
+    arch.N = n_rgen(gen);
+    arch.W = w_rgen(gen);
+    // Routing channel width must be even for unidirectional
+    arch.W = arch.W % 2 == 0 ? arch.W : arch.W + 1;
+    arch.bench = benchmarks;
+
+    return arch;
+}
 
 std::string Benchmark::to_s(unsigned indent) const {
     std::ostringstream os;

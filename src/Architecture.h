@@ -30,16 +30,6 @@
 
 class Architecture {
 public:
-    static const unsigned UNSET;
-    static const std::pair<unsigned, unsigned> K_RANGE;
-    static const std::pair<unsigned, unsigned> N_RANGE;
-    static const std::pair<unsigned, unsigned> W_RANGE;
-
-    /**
-     * \return a randomly generated architecture.
-     */
-    static Architecture random();
-
     struct Benchmark {
         static const double FAILED;
 
@@ -92,6 +82,16 @@ public:
         std::string benchmark;
         bool is_populated;
     };
+
+    static const unsigned UNSET;
+    static const std::pair<unsigned, unsigned> K_RANGE;
+    static const std::pair<unsigned, unsigned> N_RANGE;
+    static const std::pair<unsigned, unsigned> W_RANGE;
+
+    /**
+     * \return a randomly generated architecture.
+     */
+    static Architecture random(const std::vector<Benchmark>& benchmarks = {});
 
     /* Constructors, Destructor, and Assignment operators {{{ */
     // Default constructor
