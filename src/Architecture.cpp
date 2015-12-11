@@ -475,3 +475,9 @@ float Architecture::vs_ref_area() const {
 
     return sum / bench.size();
 }
+
+bool Architecture::non_failed() const {
+    return std::none_of(bench.begin(), bench.end(), [](const Benchmark& b) {
+                        return b.failed();
+                        });
+}

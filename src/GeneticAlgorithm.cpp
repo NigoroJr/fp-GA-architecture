@@ -221,8 +221,15 @@ void GeneticAlgorithm::select() {
               architectures.begin() + params.elites_preserve,
               std::back_inserter(next_generation));
 
+    // However many architectures that have results populated
+    unsigned successes = std::count_if(architectures.begin(),
+                                       architectures.end(),
+                                       [] (const Architecture& a) {
+                                       return a.non_failed();
+                                       });
+    unsigned lim = std::min(params.num_selection, successes);
     // Select what to crossever/mutate from
-    for (unsigned i = 0; i < params.num_selection; i++) {
+    for (unsigned i = 0; i < lim; i++) {
         Architecture& arch = architectures[get_biased_index()];
         bool already_exists = false;
         do {

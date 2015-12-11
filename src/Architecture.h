@@ -175,6 +175,11 @@ public:
      */
     float vs_ref_area() const;
 
+    /**
+     * \return true if NONE of the benchmarks failed.
+     */
+    bool non_failed() const;
+
     bool operator==(const Architecture& other) const;
     bool operator!=(const Architecture& other) const;
 
