@@ -1,7 +1,7 @@
 #ifndef ARCHITECTURE_H_
 #define ARCHITECTURE_H_
 
-#define DEBUG
+// #define DEBUG
 
 #include <sys/types.h>
 #include <sys/stat.h>
