@@ -330,7 +330,6 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
         std::cout << "Running ABC with: " << command_abc << std::endl;
 #endif
 
-#pragma omp critical
         system(command_abc);
 
         std::string new_blif = path + get_basename(b.get_filename()) + ".abc.blif";
