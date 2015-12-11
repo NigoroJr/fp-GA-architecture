@@ -5,3 +5,4 @@ Session.vim
 
 build/*
 !build/.keep
+data
