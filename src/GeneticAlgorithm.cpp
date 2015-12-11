@@ -251,7 +251,12 @@ void GeneticAlgorithm::select() {
     // Select what to crossever/mutate from
     unsigned cnt = 0;
     while (cnt < lim) {
-        Architecture& arch = architectures[get_biased_index()];
+        unsigned index;
+        do {
+            index = get_biased_index();
+        } while (index >= architectures.size());
+
+        const Architecture& arch = architectures[index];
 
         // Same architecture shouldn't be selected more than once
         if (arch.non_failed() && std::count(selected.begin(),
@@ -343,7 +348,7 @@ unsigned GeneticAlgorithm::get_biased_index(const unsigned offset) {
         }
     }
 
-    return offset + weights.size();
+    return offset + weights.size() - 1;
 }
 
 template<typename T>
