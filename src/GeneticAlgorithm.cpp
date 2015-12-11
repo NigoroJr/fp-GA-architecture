@@ -182,15 +182,34 @@ GeneticAlgorithm& GeneticAlgorithm::operator=(GeneticAlgorithm&& other) {
 /* }}} */
 
 void GeneticAlgorithm::run_generation() {
-    next_generation.clear();
+    if (!next_generation.empty()) {
+        change_generation();
+        next_generation.clear();
+    }
     selected.clear();
 
     evaluate();
+
+    // Throw away all failed architectures
+    auto new_end = std::remove_if(architectures.begin(),
+                                  architectures.end(),
+                                  [] (const Architecture& a) {
+                                  return !a.non_failed();
+                                  });
+    architectures.resize(std::distance(architectures.begin(), new_end));
+
+    unsigned lim = std::min(params.elites_preserve,
+                            static_cast<unsigned>(architectures.size()));
+    // Copy the elites
+    sort_population();
+    std::copy(architectures.begin(),
+              architectures.begin() + lim,
+              std::back_inserter(next_generation));
+
+    // Prepare for the next generation (but not replace yet)
     select();
-    // Note: architectures sorted after call to select
     crossover();
     mutate();
-    change_generation();
 }
 
 const Architecture& GeneticAlgorithm::get_best() const {
@@ -222,13 +241,6 @@ void GeneticAlgorithm::evaluate() {
 }
 
 void GeneticAlgorithm::select() {
-    sort_population();
-
-    // Copy the elites
-    std::copy(architectures.begin(),
-              architectures.begin() + params.elites_preserve,
-              std::back_inserter(next_generation));
-
     // However many architectures that have successful results
     unsigned successes = std::count_if(architectures.begin(),
                                        architectures.end(),
