@@ -374,7 +374,7 @@ void Architecture::run_benchmarks(const std::string& vtr_path) {
             }
 
             // Save as reference values
-            if (!reference_results[i].is_populated) {
+            if (!reference_results[i].is_populated && !b.failed()) {
                 reference_results[i] = b;
                 reference_results[i].is_populated = true;
             }
